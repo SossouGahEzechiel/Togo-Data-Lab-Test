@@ -8,4 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class Mission extends Model
 {
 	use HasUuids;
+
+	public function reservations() {
+		return $this->hasMany(Reservation::class);
+	}
 }
