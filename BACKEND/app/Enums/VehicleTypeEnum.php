@@ -2,7 +2,12 @@
 
 namespace App\Enums;
 
-enum VehicleEnum: String {
+use Illuminate\Support\Traits\EnumeratesValues;
+
+enum VehicleTypeEnum: String {
+
+	use EnumeratesValues;
+
 	case CAR = "Voiture";
 	case MOTOR_CYCLE = "Moto";
 	case PICK_UP = "Pick up";
