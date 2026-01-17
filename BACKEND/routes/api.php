@@ -3,7 +3,8 @@
 use App\Http\Controllers\{
 	AuthController,
 	MissionController,
-	UserController,
+    ReservationController,
+    UserController,
 	VehicleController
 };
 use Illuminate\Support\Facades\Route;
@@ -21,6 +22,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
 	Route::apiResources([
 		'vehicles' => VehicleController::class,
 		'missions' => MissionController::class,
-		'users' => UserController::class
+		'users' => UserController::class,
+		'reservations' => ReservationController::class
 	]);
+
+	Route::controller(ReservationController::class)->prefix('reservations')->group(function() {
+		Route::patch('{reservation}/assign-driver', 'assignDriver');
+	});
 });

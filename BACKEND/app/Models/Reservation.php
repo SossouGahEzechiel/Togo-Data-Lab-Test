@@ -24,6 +24,18 @@ class Reservation extends Pivot
 		'vehicle_id',
 	];
 
+	public $timestamps = false;
+
+	public static function with($relations)
+	{
+		return [
+			'author',
+			'mission',
+			'driver',
+			'vehicle'
+		];
+	}
+
 	public function mission(): BelongsTo
 	{
 		return $this->belongsTo(Mission::class);
@@ -41,6 +53,6 @@ class Reservation extends Pivot
 
 	public function author(): BelongsTo
 	{
-		return $this->belongsTo(User::class);
+		return $this->belongsTo(User::class, 'user_id');
 	}
 }

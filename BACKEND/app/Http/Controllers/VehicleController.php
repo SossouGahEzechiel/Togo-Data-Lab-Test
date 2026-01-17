@@ -87,7 +87,7 @@ class VehicleController extends Controller
 		return new VehicleResource($vehicle->load('images'));
 	}
 
-	public function get(string $id): VehicleResource|JsonResponse
+	public function show(string $id): VehicleResource|JsonResponse
 	{
 		if (!$vehicle = Vehicle::query()->find($id)) {
 			return _404();

@@ -8,7 +8,9 @@ enum VehicleTypeEnum: String {
 
 	use EnumToolsTrait;
 
-	case CAR = "Voiture";
+	case SUV = "Voiture";
 	case MOTOR_CYCLE = "Moto";
-	case PICK_UP = "Pick up";
+	case PICKUP = "Pick up";
+	case MINIBUS = "Mini bus";
+	case BUS = "Bus";
 }

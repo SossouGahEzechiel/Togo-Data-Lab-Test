@@ -39,7 +39,7 @@ class MissionController extends Controller
 		return new MissionResource($mission);
 	}
 
-	public function get(string $id): MissionResource|JsonResponse
+	public function show(string $id): MissionResource|JsonResponse
 	{
 		if (!$mission = Mission::query()->with(['vehicles', 'users', 'drivers'])->find($id)) {
 			return _404();
