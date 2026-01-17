@@ -19,7 +19,11 @@ class VehicleController extends Controller
 
 	public function index(): AnonymousResourceCollection
 	{
-		$vehicles = Vehicle::query()->orderBy('registration_number')->get();
+		$vehicles = Vehicle::query()
+			->with('images')
+			->orderBy('registration_number')
+			->get();
+
 		return VehicleResource::collection($vehicles);
 	}
 
@@ -38,10 +42,11 @@ class VehicleController extends Controller
 			'registrationDate' => ['required', 'date'],
 			'seatsCount' => ['required', 'numeric', 'min:1', 'max:15'],
 			'status' => ['required', Rule::enum(VehicleStatusEnum::class)],
-			'reason' => ['nullable', 'max:1023'],
-			// 'images' => ['nullable', 'file',
-			// // 'mime_type:.jpeg,.jpg,.jpeg'
-			// ]
+			'reason' => [
+				// Le motif est obligatoire quand le véhicule est suspendu ou en réparation
+				'required_if:status,' . VehicleStatusEnum::SUSPENDED->value . ',' . VehicleStatusEnum::UNDER_REPAIR->value,
+				'max:1023'
+			],
 			'images.*' => ['nullable', 'file', 'mimes:jpeg,jpg,png,webp', 'max:2048']
 		], [], [
 			'brand' => "La marque du véhicule",
@@ -65,12 +70,12 @@ class VehicleController extends Controller
 		$images = $request->file('images');
 
 		foreach ($images as $image) {
-			$ext = $image->getClientOriginalExtension();
-			$path = "";
+			$extension = $image->getClientOriginalExtension();
+			$path = '';
 			try {
 				DB::beginTransaction();
-				$path = $image->storeAs(static::FOLDER_NAME, uniqid() . '.' . $ext, 'public');
-				$image = $vehicle->images()->create(['path' => $path]);
+				$path = $image->storeAs(static::FOLDER_NAME, uniqid() . '.' . $extension, 'public');
+				$vehicle->images()->create(['path' => $path]);
 				DB::commit();
 				$path = '';
 			} catch (Throwable $th) {
@@ -93,20 +98,28 @@ class VehicleController extends Controller
 
 	public function update(Request $request, string $id): VehicleResource|JsonResponse
 	{
+		if (!$vehicle = Vehicle::query()->find($id)) {
+			return _404();
+		}
+
 		$request->validate([
 			'brand' => ['required', 'min:4', 'max:31'],
 			'model' => ['required', 'min:4', 'max:31'],
 			'type' => ['required', Rule::enum(VehicleTypeEnum::class)],
 			'registrationNumber' => [
 				'required',
-				Rule::unique(Vehicle::class, 'registration_number')->ignore($id),
+				Rule::unique(Vehicle::class)->ignore($id, 'registration_number'),
 				'min:8',
 				'max:31'
 			],
 			'registrationDate' => ['required', 'date'],
 			'seatsCount' => ['required', 'numeric', 'integer', 'min:1', 'max:15'],
 			'status' => ['required', Rule::enum(VehicleStatusEnum::class)],
-			'reason' => ['nullable', 'max:1023'],
+			'reason' => [
+				// Le motif est obligatoire quand le véhicule est suspendu ou en réparation
+				'required_if:status,' . VehicleStatusEnum::SUSPENDED->value . ',' . VehicleStatusEnum::UNDER_REPAIR->value,
+				'max:1023'
+			],
 		], [], [
 			'brand' => "La marque du véhicule",
 			'model' => "Le modèle du véhicule",
@@ -117,10 +130,6 @@ class VehicleController extends Controller
 			'status' => "Le statut du véhicule",
 			'reason' => "La raison du statut",
 		]);
-
-		if (!$vehicle = Vehicle::query()->find($id)) {
-			return _404();
-		}
 
 		$vehicle->update([
 			...$request->except(['registrationNumber', 'registrationDate', 'seatsCount', 'images']),
@@ -133,7 +142,7 @@ class VehicleController extends Controller
 
 	public function delete(string $id): JsonResponse
 	{
-		if (!$vehicle = Vehicle::query()->find($id)) {
+		if (!$vehicle = Vehicle::query()->with('images')->find($id)) {
 			return _404();
 		}
 
@@ -142,12 +151,9 @@ class VehicleController extends Controller
 		}
 
 		try {
-			$vehicle->images->each(function (Vehicle $vehicle) {
-				$vehicle->images->each(function (Image $image) {
-					// TODO: Mettre en place le suivi des transaction
-					delete_file($image->path);
-				});
-				$vehicle->images()->delete();
+			$vehicle->images->each(function (Image $image) {
+				delete_file($image->path);
+				$image->delete();
 			});
 
 			$vehicle->delete();
