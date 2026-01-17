@@ -35,11 +35,13 @@ class Vehicle extends Model
 		];
 	}
 
-	public function reservations() : HasMany {
+	public function reservations(): HasMany
+	{
 		return $this->hasMany(Reservation::class);
 	}
 
-	public function images(): MorphMany {
+	public function images(): MorphMany
+	{
 		return $this->morphMany(Image::class, "imageable");
 	}
 }

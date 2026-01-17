@@ -16,6 +16,8 @@ class Image extends Model
 		'imageable_type',
 	];
 
+	// public $timestamps = false;
+
 	public function imageable() : MorphTo {
 		return $this->morphTo();
 	}

@@ -29,12 +29,20 @@ class VehicleController extends Controller
 			'brand' => ['required', 'min:4', 'max:31'],
 			'model' => ['required', 'min:4', 'max:31'],
 			'type' => ['required', Rule::enum(VehicleTypeEnum::class)],
-			'registrationNumber' => ['required', 'min:8', 'max:31'],
+			'registrationNumber' => [
+				'required',
+				Rule::unique(Vehicle::class, 'registration_number'),
+				'min:8',
+				'max:31'
+			],
 			'registrationDate' => ['required', 'date'],
 			'seatsCount' => ['required', 'numeric', 'min:1', 'max:15'],
 			'status' => ['required', Rule::enum(VehicleStatusEnum::class)],
 			'reason' => ['nullable', 'max:1023'],
-			'images.*' => ['nullable', 'file', '.jpeg,.jpg,.jpeg']
+			// 'images' => ['nullable', 'file',
+			// // 'mime_type:.jpeg,.jpg,.jpeg'
+			// ]
+			'images.*' => ['nullable', 'file', 'mimes:jpeg,jpg,png,webp', 'max:2048']
 		], [], [
 			'brand' => "La marque du véhicule",
 			'model' => "Le modèle du véhicule",
@@ -44,7 +52,7 @@ class VehicleController extends Controller
 			'seatsCount' => "Le nombre de sièges",
 			'status' => "Le statut du véhicule",
 			'reason' => "La raison du statut",
-			'images.*' => "L'image du véhicule",
+			'images.*' => "Les images du véhicule",
 		]);
 
 		$vehicle = Vehicle::query()->create([
@@ -54,21 +62,22 @@ class VehicleController extends Controller
 			'seats_count' => $request->integer('seatsCount')
 		]);
 
+		$images = $request->file('images');
 
-		$request->collect('images')->each(function(string $fileKey) use ($request, $vehicle) {
-			$fileName = '';
-
+		foreach ($images as $image) {
+			$ext = $image->getClientOriginalExtension();
+			$path = "";
 			try {
 				DB::beginTransaction();
-				$fileName = store_file($request, $fileKey, static::FOLDER_NAME);
-				$vehicle->images()->create(['path' => $fileName]);
+				$path = $image->storeAs(static::FOLDER_NAME, uniqid() . '.' . $ext, 'public');
+				$image = $vehicle->images()->create(['path' => $path]);
 				DB::commit();
-				$fileName = '';
-			} catch (Throwable) {
+				$path = '';
+			} catch (Throwable $th) {
 				DB::rollBack();
-				delete_file($fileName);
+				delete_file($path);
 			}
-		});
+		}
 
 		return new VehicleResource($vehicle->load('images'));
 	}
@@ -88,7 +97,12 @@ class VehicleController extends Controller
 			'brand' => ['required', 'min:4', 'max:31'],
 			'model' => ['required', 'min:4', 'max:31'],
 			'type' => ['required', Rule::enum(VehicleTypeEnum::class)],
-			'registrationNumber' => ['required', 'min:8', 'max:31'],
+			'registrationNumber' => [
+				'required',
+				Rule::unique(Vehicle::class, 'registration_number')->ignore($id),
+				'min:8',
+				'max:31'
+			],
 			'registrationDate' => ['required', 'date'],
 			'seatsCount' => ['required', 'numeric', 'integer', 'min:1', 'max:15'],
 			'status' => ['required', Rule::enum(VehicleStatusEnum::class)],
