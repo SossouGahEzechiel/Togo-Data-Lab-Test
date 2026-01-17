@@ -2,11 +2,11 @@
 
 namespace App\Enums;
 
-use Illuminate\Support\Traits\EnumeratesValues;
+use App\Traits\EnumToolsTrait;
 
 enum VehicleStatusEnum: String {
 
-	use EnumeratesValues;
+	use EnumToolsTrait;
 
 	case AVAILABLE = "Disponible";
 	case UNAVAILABLE = "Indisponible";
@@ -14,3 +14,4 @@ enum VehicleStatusEnum: String {
 	case RESERVED = "Réservé";
 	case SUSPENDED = "Suspendu";
 }
+

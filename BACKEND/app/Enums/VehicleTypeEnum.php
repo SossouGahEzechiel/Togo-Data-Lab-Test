@@ -2,11 +2,11 @@
 
 namespace App\Enums;
 
-use Illuminate\Support\Traits\EnumeratesValues;
+use App\Traits\EnumToolsTrait;
 
 enum VehicleTypeEnum: String {
 
-	use EnumeratesValues;
+	use EnumToolsTrait;
 
 	case CAR = "Voiture";
 	case MOTOR_CYCLE = "Moto";

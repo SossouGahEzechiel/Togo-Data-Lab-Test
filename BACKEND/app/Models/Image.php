@@ -10,6 +10,12 @@ class Image extends Model
 {
 	use HasUuids;
 
+	protected $fillable = [
+		'path',
+		'imageable_id',
+		'imageable_type',
+	];
+
 	public function imageable() : MorphTo {
 		return $this->morphTo();
 	}

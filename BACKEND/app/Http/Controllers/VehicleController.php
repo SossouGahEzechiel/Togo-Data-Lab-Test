@@ -9,11 +9,14 @@ use App\Models\Vehicle;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Throwable;
 
 class VehicleController extends Controller
 {
+	private const FOLDER_NAME = 'vehicles';
+
 	public function index(): AnonymousResourceCollection
 	{
 		$vehicles = Vehicle::query()->orderBy('registration_number')->get();
@@ -28,9 +31,10 @@ class VehicleController extends Controller
 			'type' => ['required', Rule::enum(VehicleTypeEnum::class)],
 			'registrationNumber' => ['required', 'min:8', 'max:31'],
 			'registrationDate' => ['required', 'date'],
-			'seatsCount' => ['required', 'number', 'min:1', 'max:15'],
+			'seatsCount' => ['required', 'numeric', 'min:1', 'max:15'],
 			'status' => ['required', Rule::enum(VehicleStatusEnum::class)],
 			'reason' => ['nullable', 'max:1023'],
+			'images.*' => ['nullable', 'file', '.jpeg,.jpg,.jpeg']
 		], [], [
 			'brand' => "La marque du véhicule",
 			'model' => "Le modèle du véhicule",
@@ -40,9 +44,33 @@ class VehicleController extends Controller
 			'seatsCount' => "Le nombre de sièges",
 			'status' => "Le statut du véhicule",
 			'reason' => "La raison du statut",
+			'images.*' => "L'image du véhicule",
 		]);
-		$vehicle = Vehicle::create($request->all());
-		return new VehicleResource($vehicle);
+
+		$vehicle = Vehicle::query()->create([
+			...$request->except(['registrationNumber', 'registrationDate', 'seatsCount', 'images']),
+			'registration_number' => $request->input('registrationNumber'),
+			'registration_date' => $request->date('registrationDate'),
+			'seats_count' => $request->integer('seatsCount')
+		]);
+
+
+		$request->collect('images')->each(function(string $fileKey) use ($request, $vehicle) {
+			$fileName = '';
+
+			try {
+				DB::beginTransaction();
+				$fileName = store_file($request, $fileKey, static::FOLDER_NAME);
+				$vehicle->images()->create(['path' => $fileName]);
+				DB::commit();
+				$fileName = '';
+			} catch (Throwable) {
+				DB::rollBack();
+				delete_file($fileName);
+			}
+		});
+
+		return new VehicleResource($vehicle->load('images'));
 	}
 
 	public function get(string $id): VehicleResource|JsonResponse
@@ -62,7 +90,7 @@ class VehicleController extends Controller
 			'type' => ['required', Rule::enum(VehicleTypeEnum::class)],
 			'registrationNumber' => ['required', 'min:8', 'max:31'],
 			'registrationDate' => ['required', 'date'],
-			'seatsCount' => ['required', 'number', 'min:1', 'max:15'],
+			'seatsCount' => ['required', 'numeric', 'integer', 'min:1', 'max:15'],
 			'status' => ['required', Rule::enum(VehicleStatusEnum::class)],
 			'reason' => ['nullable', 'max:1023'],
 		], [], [
@@ -80,7 +108,12 @@ class VehicleController extends Controller
 			return _404();
 		}
 
-		$vehicle->update($request->all());
+		$vehicle->update([
+			...$request->except(['registrationNumber', 'registrationDate', 'seatsCount', 'images']),
+			'registration_number' => $request->input('registrationNumber'),
+			'registration_date' => $request->date('registrationDate'),
+			'seats_count' => $request->integer('seatsCount')
+		]);
 		return new VehicleResource($vehicle);
 	}
 
