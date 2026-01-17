@@ -38,8 +38,8 @@ class Mission extends Model
 	protected function casts()
 	{
 		return [
-			'from' => 'datetime:Y-m-d',
-			'to' => 'datetime:Y-m-d',
+			'from' => 'date:Y-m-d',
+			'to' => 'date:Y-m-d',
 		];
 	}
 

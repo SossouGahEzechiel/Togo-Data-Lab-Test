@@ -2,12 +2,17 @@
 
 use App\Http\Controllers\{
 	MissionController,
+	UserController,
 	VehicleController
 };
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn() => _200(env("APP_NAME") . " API is running"));
 
-Route::apiResource('vehicles', VehicleController::class);
+// Route::post('users/{user}', [UserController::class, 'updateImage']);
 
-Route::apiResource('missions', MissionController::class);
+Route::apiResources([
+	'vehicles' => VehicleController::class,
+	'missions' => MissionController::class,
+	'users' => UserController::class
+]);
