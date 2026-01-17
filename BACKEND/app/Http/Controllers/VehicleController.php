@@ -140,7 +140,7 @@ class VehicleController extends Controller
 		return new VehicleResource($vehicle);
 	}
 
-	public function delete(string $id): JsonResponse
+	public function destroy(string $id): JsonResponse
 	{
 		if (!$vehicle = Vehicle::query()->with('images')->find($id)) {
 			return _404();
