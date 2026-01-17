@@ -17,7 +17,8 @@ class UserResource extends JsonResource
 			'role' => $this->role,
 			'phone' => $this->phone,
 			'isActive' => $this->is_active,
-			'image' => new ImageResource($this->whenLoaded('image'))
+			'image' => new ImageResource($this->whenLoaded('image')),
+			'token' => $this->whenHas('token')
 		];
 	}
 }
