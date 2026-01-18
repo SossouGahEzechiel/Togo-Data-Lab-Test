@@ -12,14 +12,14 @@
         }
     ],
     "paths": {
-        "/api/login": {
+        "/auth/login": {
             "post": {
                 "tags": [
                     "Authentification"
                 ],
                 "summary": "Connexion utilisateur",
                 "description": "Authentifie un utilisateur et retourne un token d'accès",
-                "operationId": "a3b306d14572d1f4bd6c064b3233e7b8",
+                "operationId": "8cb7742ae98d0990acb2907c4e00bf24",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -80,14 +80,14 @@
                 }
             }
         },
-        "/api/logout": {
+        "/auth/logout": {
             "post": {
                 "tags": [
                     "Authentification"
                 ],
                 "summary": "Déconnexion utilisateur",
                 "description": "Invalide le token d'authentification de l'utilisateur courant",
-                "operationId": "fe8f3429cd6979b3b4517e186505f9f9",
+                "operationId": "0d29c740dc06d77602af8095bf4654cc",
                 "responses": {
                     "200": {
                         "description": "Déconnexion réussie",
@@ -101,6 +101,465 @@
                     },
                     "401": {
                         "description": "Non authentifié",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/vehicles": {
+            "get": {
+                "tags": [
+                    "Véhicules"
+                ],
+                "summary": "Lister tous les véhicules",
+                "description": "Retourne la liste de tous les véhicules avec leurs images",
+                "operationId": "d17171521b86a0b324bfa4d4f6ca1f8a",
+                "responses": {
+                    "200": {
+                        "description": "Liste des véhicules récupérée avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Vehicle"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Véhicules"
+                ],
+                "summary": "Créer un nouveau véhicule",
+                "description": "Crée un nouveau véhicule avec éventuellement des images",
+                "operationId": "e19336f3d4ff20d9858a84d5113213bc",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "brand",
+                                    "model",
+                                    "type",
+                                    "registrationNumber",
+                                    "registrationDate",
+                                    "seatsCount",
+                                    "status"
+                                ],
+                                "properties": {
+                                    "brand": {
+                                        "description": "Marque du véhicule",
+                                        "type": "string",
+                                        "maxLength": 31,
+                                        "minLength": 4,
+                                        "example": "Toyota"
+                                    },
+                                    "model": {
+                                        "description": "Modèle du véhicule",
+                                        "type": "string",
+                                        "maxLength": 31,
+                                        "minLength": 4,
+                                        "example": "Corolla"
+                                    },
+                                    "type": {
+                                        "description": "Type de véhicule",
+                                        "type": "string",
+                                        "enum": [
+                                            "car",
+                                            "motorcycle",
+                                            "truck",
+                                            "van",
+                                            "bus"
+                                        ],
+                                        "example": "car"
+                                    },
+                                    "registrationNumber": {
+                                        "description": "Numéro d'immatriculation",
+                                        "type": "string",
+                                        "maxLength": 31,
+                                        "minLength": 8,
+                                        "example": "AB-123-CD"
+                                    },
+                                    "registrationDate": {
+                                        "description": "Date de première immatriculation",
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2023-01-15"
+                                    },
+                                    "seatsCount": {
+                                        "description": "Nombre de places assises",
+                                        "type": "integer",
+                                        "maximum": 15,
+                                        "minimum": 1,
+                                        "example": 5
+                                    },
+                                    "status": {
+                                        "description": "Statut du véhicule",
+                                        "type": "string",
+                                        "enum": [
+                                            "available",
+                                            "reserved",
+                                            "suspended",
+                                            "under_repair"
+                                        ],
+                                        "example": "available"
+                                    },
+                                    "reason": {
+                                        "description": "Raison du statut (obligatoire si SUSPENDED ou UNDER_REPAIR)",
+                                        "type": "string",
+                                        "maxLength": 1023,
+                                        "example": "En révision technique",
+                                        "nullable": true
+                                    },
+                                    "images[]": {
+                                        "description": "Images du véhicule (formats: jpeg, jpg, png, webp, max: 2MB)",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        },
+                                        "maxItems": 10
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Véhicule créé avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Vehicle"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Données invalides",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Non authentifié",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erreur de validation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/vehicles/{id}": {
+            "get": {
+                "tags": [
+                    "Véhicules"
+                ],
+                "summary": "Afficher un véhicule",
+                "description": "Retourne les détails d'un véhicule spécifique",
+                "operationId": "10887c4dacfad2ebc95acc8bcf1b7188",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID du véhicule",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Véhicule récupéré avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Vehicle"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Véhicule non trouvé",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Véhicules"
+                ],
+                "summary": "Mettre à jour un véhicule",
+                "description": "Met à jour les informations d'un véhicule existant",
+                "operationId": "5a154eaaf029bc3a95ff0cac19946fc9",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID du véhicule",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "brand",
+                                    "model",
+                                    "type",
+                                    "registrationNumber",
+                                    "registrationDate",
+                                    "seatsCount",
+                                    "status"
+                                ],
+                                "properties": {
+                                    "brand": {
+                                        "type": "string",
+                                        "maxLength": 31,
+                                        "minLength": 4,
+                                        "example": "Toyota"
+                                    },
+                                    "model": {
+                                        "type": "string",
+                                        "maxLength": 31,
+                                        "minLength": 4,
+                                        "example": "Corolla Hybrid"
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "car",
+                                            "motorcycle",
+                                            "truck",
+                                            "van",
+                                            "bus"
+                                        ],
+                                        "example": "car"
+                                    },
+                                    "registrationNumber": {
+                                        "type": "string",
+                                        "maxLength": 31,
+                                        "minLength": 8,
+                                        "example": "AB-123-CD"
+                                    },
+                                    "registrationDate": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2023-01-15"
+                                    },
+                                    "seatsCount": {
+                                        "type": "integer",
+                                        "maximum": 15,
+                                        "minimum": 1,
+                                        "example": 5
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "enum": [
+                                            "available",
+                                            "reserved",
+                                            "suspended",
+                                            "under_repair"
+                                        ],
+                                        "example": "available"
+                                    },
+                                    "reason": {
+                                        "type": "string",
+                                        "maxLength": 1023,
+                                        "example": "Véhicule en maintenance",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Véhicule mis à jour avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Vehicle"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Données invalides",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Non authentifié",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Véhicule non trouvé",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erreur de validation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Véhicules"
+                ],
+                "summary": "Supprimer un véhicule",
+                "description": "Supprime un véhicule et ses images associées",
+                "operationId": "6c00c88c53d96dd1f08e69ba6d6484a1",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID du véhicule",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Véhicule supprimé avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Impossible de supprimer (réservations existantes)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Non authentifié",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Véhicule non trouvé",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur interne du serveur",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -158,7 +617,7 @@
                     "path": {
                         "description": "Chemin d'accès à l'image",
                         "type": "string",
-                        "example": "images/users/profile.jpg"
+                        "example": "path/to/file.jpg"
                     }
                 },
                 "type": "object"
@@ -239,6 +698,80 @@
                         "type": "object"
                     }
                 ]
+            },
+            "Vehicle": {
+                "description": "Schéma de données d'un véhicule",
+                "required": [
+                    "id",
+                    "brand",
+                    "model",
+                    "type",
+                    "registrationNumber",
+                    "registrationDate",
+                    "seatsCount",
+                    "status"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "brand": {
+                        "type": "string",
+                        "example": "Toyota"
+                    },
+                    "model": {
+                        "type": "string",
+                        "example": "Corolla"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "car",
+                            "motorcycle",
+                            "truck",
+                            "van",
+                            "bus"
+                        ],
+                        "example": "car"
+                    },
+                    "registrationNumber": {
+                        "type": "string",
+                        "example": "AB-123-CD"
+                    },
+                    "registrationDate": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2023-01-15"
+                    },
+                    "seatsCount": {
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "available",
+                            "reserved",
+                            "suspended",
+                            "under_repair"
+                        ],
+                        "example": "available"
+                    },
+                    "reason": {
+                        "type": "string",
+                        "example": "En révision technique",
+                        "nullable": true
+                    },
+                    "images": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Image"
+                        },
+                        "nullable": true
+                    }
+                },
+                "type": "object"
             }
         },
         "securitySchemes": {
@@ -251,6 +784,10 @@
         }
     },
     "tags": [
+        {
+            "name": "Véhicules",
+            "description": "Gestion des véhicules"
+        },
         {
             "name": "Authentification",
             "description": "Authentification"

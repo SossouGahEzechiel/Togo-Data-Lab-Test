@@ -16,7 +16,7 @@ use OpenApi\Attributes as OA;
 			property: "path",
 			type: "string",
 			description: "Chemin d'accès à l'image",
-			example: "images/users/profile.jpg"
+			example: "path/to/file.jpg"
 		)
 	]
 )]

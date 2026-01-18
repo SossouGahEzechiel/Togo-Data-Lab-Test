@@ -13,7 +13,7 @@ use OpenApi\Attributes as OA;
 class AuthController extends Controller
 {
 	#[OA\Post(
-		path: "/api/login",
+		path: "/auth/login",
 		summary: "Connexion utilisateur",
 		description: "Authentifie un utilisateur et retourne un token d'accès",
 		tags: ["Authentification"],
@@ -74,7 +74,7 @@ class AuthController extends Controller
 	}
 
 	#[OA\Post(
-		path: "/api/logout",
+		path: "/auth/logout",
 		summary: "Déconnexion utilisateur",
 		description: "Invalide le token d'authentification de l'utilisateur courant",
 		tags: ["Authentification"],
