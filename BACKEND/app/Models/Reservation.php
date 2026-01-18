@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ReservationStatusEnum;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
@@ -33,6 +34,15 @@ class Reservation extends Pivot
 			'mission',
 			'driver',
 			'vehicle'
+		];
+	}
+
+	protected function casts()
+	{
+		return [
+			'from' => 'date',
+			'to' => 'date',
+			'status' => ReservationStatusEnum::class
 		];
 	}
 

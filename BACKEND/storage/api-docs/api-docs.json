@@ -52,7 +52,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/User"
+                                    "$ref": "#/components/schemas/UserWithToken"
                                 }
                             }
                         }
@@ -480,6 +480,633 @@
                     },
                     "404": {
                         "description": "Mission non trouvée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/reservations": {
+            "get": {
+                "tags": [
+                    "Réservations"
+                ],
+                "summary": "Lister toutes les réservations",
+                "description": "Retourne la liste de toutes les réservations triées par date de début et fin",
+                "operationId": "69fb15b9890a0559eb50e5e1777d9b64",
+                "responses": {
+                    "200": {
+                        "description": "Liste des réservations récupérée avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ReservationWithRelations"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Non authentifié",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Réservations"
+                ],
+                "summary": "Créer une nouvelle réservation",
+                "description": "Crée une nouvelle réservation pour un véhicule et une mission",
+                "operationId": "1aabc7d432cc652e63cfc3fb514132cd",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "from",
+                                    "missionId",
+                                    "vehicleId"
+                                ],
+                                "properties": {
+                                    "from": {
+                                        "description": "Date de début de la réservation",
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-01-15"
+                                    },
+                                    "to": {
+                                        "description": "Date de fin de la réservation",
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-01-20",
+                                        "nullable": true
+                                    },
+                                    "missionId": {
+                                        "description": "UUID de la mission",
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "example": "550e8400-e29b-41d4-a716-446655440000"
+                                    },
+                                    "vehicleId": {
+                                        "description": "UUID du véhicule",
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "example": "550e8400-e29b-41d4-a716-446655440001"
+                                    },
+                                    "driverId": {
+                                        "description": "UUID du chauffeur (optionnel)",
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "example": "550e8400-e29b-41d4-a716-446655440002",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Réservation créée avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReservationWithRelations"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Données invalides",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Non authentifié",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erreur de validation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/reservations/{id}": {
+            "get": {
+                "tags": [
+                    "Réservations"
+                ],
+                "summary": "Afficher une réservation",
+                "description": "Retourne les détails d'une réservation spécifique",
+                "operationId": "4472ee4ed670cd72b7969d6e32473b92",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "UUID de la réservation",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440003"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Réservation récupérée avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReservationWithRelations"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Non authentifié",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Réservation non trouvée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Réservations"
+                ],
+                "summary": "Mettre à jour une réservation",
+                "description": "Met à jour complètement une réservation existante",
+                "operationId": "3cb121a7272b76103c947578223bb7d5",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "UUID de la réservation",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440003"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "from",
+                                    "missionId",
+                                    "vehicleId"
+                                ],
+                                "properties": {
+                                    "from": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-01-16"
+                                    },
+                                    "to": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-01-21",
+                                        "nullable": true
+                                    },
+                                    "missionId": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "example": "550e8400-e29b-41d4-a716-446655440000"
+                                    },
+                                    "vehicleId": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "example": "550e8400-e29b-41d4-a716-446655440001"
+                                    },
+                                    "driverId": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "example": "550e8400-e29b-41d4-a716-446655440002",
+                                        "nullable": true
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "enum": [
+                                            "En attente",
+                                            "Validée",
+                                            "Rejetée",
+                                            "Passée"
+                                        ],
+                                        "example": "En attente",
+                                        "nullable": true
+                                    },
+                                    "vehicleStatus": {
+                                        "description": "Obligatoire si status est 'Passée'",
+                                        "type": "string",
+                                        "enum": [
+                                            "available",
+                                            "reserved",
+                                            "suspended",
+                                            "under_repair"
+                                        ],
+                                        "example": "available",
+                                        "nullable": true
+                                    },
+                                    "vehicleStatusReason": {
+                                        "type": "string",
+                                        "maxLength": 1023,
+                                        "example": "Véhicule en bon état",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Réservation mise à jour avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReservationWithRelations"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Données invalides",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Non authentifié",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Réservation non trouvée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur interne du serveur",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Réservations"
+                ],
+                "summary": "Supprimer une réservation",
+                "description": "Supprime une réservation existante",
+                "operationId": "fa964cce3285d6c10989429c544421ca",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "UUID de la réservation",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440003"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Réservation supprimée avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Non authentifié",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Réservation non trouvée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/reservations/{id}/assign-driver": {
+            "put": {
+                "tags": [
+                    "Réservations"
+                ],
+                "summary": "Assigner un chauffeur à une réservation",
+                "description": "Assigne un chauffeur à une réservation (si elle n'est pas déjà passée)",
+                "operationId": "5484313097e9fbd84225c1652e75421a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "UUID de la réservation",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440003"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "driverId"
+                                ],
+                                "properties": {
+                                    "driverId": {
+                                        "description": "UUID du chauffeur à assigner",
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "example": "550e8400-e29b-41d4-a716-446655440002"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Chauffeur assigné avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReservationWithRelations"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "La réservation est déjà passée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Non authentifié",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Réservation non trouvée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erreur de validation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/reservations/{id}/mark-as-passed": {
+            "put": {
+                "tags": [
+                    "Réservations"
+                ],
+                "summary": "Marquer une réservation comme terminée",
+                "description": "Marque une réservation comme terminée et met à jour le statut du véhicule",
+                "operationId": "d4b5fb44a386086ba21b46c6d5f50f99",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "UUID de la réservation",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440003"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "vehicleStatus"
+                                ],
+                                "properties": {
+                                    "vehicleStatus": {
+                                        "description": "Nouveau statut du véhicule après la réservation",
+                                        "type": "string",
+                                        "enum": [
+                                            "available",
+                                            "reserved",
+                                            "suspended",
+                                            "under_repair"
+                                        ],
+                                        "example": "available"
+                                    },
+                                    "vehicleStatusReason": {
+                                        "description": "Raison du statut (obligatoire si SUSPENDED ou UNDER_REPAIR)",
+                                        "type": "string",
+                                        "maxLength": 1023,
+                                        "example": "Véhicule en bon état",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Réservation marquée comme terminée avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReservationWithRelations"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Données invalides",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Non authentifié",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Réservation non trouvée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur interne du serveur",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1052,8 +1679,8 @@
                                 },
                                 "nullable": true
                             },
-                            "users": {
-                                "description": "Utilisateurs affectés à la mission",
+                            "author": {
+                                "description": "Utilisateurs ayant fait des réservations pour la mission",
                                 "type": "array",
                                 "items": {
                                     "$ref": "#/components/schemas/User"
@@ -1073,13 +1700,133 @@
                     }
                 ]
             },
-            "User": {
-                "description": "Schéma de données d'un utilisateur",
+            "Reservation": {
+                "description": "Schéma de base d'une réservation",
+                "required": [
+                    "id",
+                    "from",
+                    "missionId",
+                    "vehicleId",
+                    "userId",
+                    "status"
+                ],
                 "properties": {
                     "id": {
                         "type": "string",
                         "format": "uuid",
-                        "example": "550e8400-e29b-41d4-a716-446655440002"
+                        "example": "550e8400-e29b-41d4-a716-446655440003"
+                    },
+                    "from": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2024-01-15"
+                    },
+                    "to": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2024-01-20",
+                        "nullable": true
+                    },
+                    "missionId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "550e8400-e29b-41d4-a716-446655440000"
+                    },
+                    "vehicleId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "550e8400-e29b-41d4-a716-446655440001"
+                    },
+                    "driverId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "550e8400-e29b-41d4-a716-446655440002",
+                        "nullable": true
+                    },
+                    "userId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "550e8400-e29b-41d4-a716-446655440004"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "En attente",
+                            "Validée",
+                            "Rejetée",
+                            "Passée"
+                        ],
+                        "example": "En attente"
+                    },
+                    "returnDate": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2024-01-20T15:30:00Z",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "ReservationWithRelations": {
+                "description": "Réservation avec toutes ses relations",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/Reservation"
+                    },
+                    {
+                        "properties": {
+                            "mission": {
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/components/schemas/Mission"
+                                    }
+                                ],
+                                "nullable": true
+                            },
+                            "vehicle": {
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/components/schemas/Vehicle"
+                                    }
+                                ],
+                                "nullable": true
+                            },
+                            "driver": {
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/components/schemas/User"
+                                    }
+                                ],
+                                "nullable": true
+                            },
+                            "user": {
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/components/schemas/User"
+                                    }
+                                ],
+                                "nullable": true
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "User": {
+                "title": "Utilisateur",
+                "description": "Schéma de données d'un utilisateur",
+                "required": [
+                    "id",
+                    "firstName",
+                    "lastName",
+                    "email",
+                    "role",
+                    "isActive"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
                     },
                     "firstName": {
                         "type": "string",
@@ -1096,6 +1843,11 @@
                     },
                     "role": {
                         "type": "string",
+                        "enum": [
+                            "admin",
+                            "user",
+                            "moderator"
+                        ],
                         "example": "user"
                     },
                     "phone": {
@@ -1114,14 +1866,28 @@
                             }
                         ],
                         "nullable": true
-                    },
-                    "token": {
-                        "type": "string",
-                        "example": "1|abcdefgh1234567890",
-                        "nullable": true
                     }
                 },
                 "type": "object"
+            },
+            "UserWithToken": {
+                "title": "Utilisateur avec token",
+                "description": "Schéma de données d'un utilisateur avec token d'authentification",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/User"
+                    },
+                    {
+                        "properties": {
+                            "token": {
+                                "description": "Token d'authentification Bearer",
+                                "type": "string",
+                                "example": "9a0866e5-649f-4fd0-88f1-259337e3b603|abcdefgh1234567890"
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
             },
             "Vehicle": {
                 "description": "Schéma de données d'un véhicule",
@@ -1212,6 +1978,10 @@
         {
             "name": "Missions",
             "description": "Gestion des missions"
+        },
+        {
+            "name": "Réservations",
+            "description": "Gestion des réservations de véhicules"
         },
         {
             "name": "Véhicules",
