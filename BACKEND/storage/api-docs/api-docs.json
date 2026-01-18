@@ -1123,6 +1123,139 @@
                 ]
             }
         },
+        "/reservations/{id}/apply-decision": {
+            "put": {
+                "tags": [
+                    "Réservations"
+                ],
+                "summary": "Appliquer une décision sur une réservation",
+                "description": "Valide ou rejette une réservation en attente. Si validée, le véhicule est marqué comme réservé et les autres réservations concurrentes sont rejetées.",
+                "operationId": "fa361791d5c45f8613e5d0e21f592363",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "UUID de la réservation",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440003"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "status"
+                                ],
+                                "properties": {
+                                    "status": {
+                                        "description": "Décision à appliquer à la réservation",
+                                        "type": "string",
+                                        "enum": [
+                                            "Validée",
+                                            "Rejetée"
+                                        ],
+                                        "example": "Validée"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Décision appliquée avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReservationWithRelations"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Action non autorisée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "oneOf": [
+                                        {
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "La reservation est déjà passée. Cette action n'est plus possible."
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        {
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "Le véhicule associé à la réservation n'est pas disponible."
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Non authentifié",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Réservation non trouvée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erreur de validation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erreur interne du serveur",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/vehicles": {
             "get": {
                 "tags": [
@@ -1826,8 +1959,8 @@
                 ],
                 "properties": {
                     "id": {
-                        "type": "integer",
-                        "example": 1
+                        "format": "uuid",
+                        "example": "123e4567-e89b-12d3-a456-426655440000"
                     },
                     "firstName": {
                         "type": "string",

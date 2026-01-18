@@ -12,7 +12,7 @@ use OpenApi\Attributes as OA;
 	description: "Schéma de données d'un utilisateur",
 	required: ["id", "firstName", "lastName", "email", "role", "isActive"],
 	properties: [
-		new OA\Property(property: "id", type: "integer", example: 1),
+		new OA\Property(property: "id", format: "uuid", example: "123e4567-e89b-12d3-a456-426655440000"),
 		new OA\Property(property: "firstName", type: "string", example: "John"),
 		new OA\Property(property: "lastName", type: "string", example: "Doe"),
 		new OA\Property(property: "email", type: "string", format: "email", example: "john.doe@example.com"),

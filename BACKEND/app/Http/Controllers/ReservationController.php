@@ -603,6 +603,105 @@ class ReservationController extends Controller
 		return new ReservationResource($reservation->refresh());
 	}
 
+	/**
+	 * Logique de validation d'une réservation :
+	 * 1. La réservation ne doit pas être déjà PASSED
+	 * 2. Le véhicule ne doit pas être UNAVAILABLE ou UNDER_REPAIR
+	 * 3. Si validation demandée, le véhicule doit être disponible à la date de début
+	 *
+	 * Effets si validation réussie :
+	 * 1. Statut de la réservation mis à VALIDATED
+	 * 2. Véhicule marqué comme RESERVED
+	 * 3. Toutes les autres réservations du même véhicule sur la même période sont REJECTED
+	 */
+	#[OA\Put(
+		path: "/reservations/{id}/apply-decision",
+		summary: "Appliquer une décision sur une réservation",
+		description: "Valide ou rejette une réservation en attente. Si validée, le véhicule est marqué comme réservé et les autres réservations concurrentes sont rejetées.",
+		tags: ["Réservations"],
+		security: [["bearerAuth" => []]],
+		parameters: [
+			new OA\Parameter(
+				name: "id",
+				in: "path",
+				required: true,
+				description: "UUID de la réservation",
+				schema: new OA\Schema(
+					type: "string",
+					format: "uuid",
+					example: "550e8400-e29b-41d4-a716-446655440003"
+				)
+			)
+		],
+		requestBody: new OA\RequestBody(
+			required: true,
+			content: new OA\JsonContent(
+				required: ["status"],
+				properties: [
+					new OA\Property(
+						property: "status",
+						type: "string",
+						enum: ["Validée", "Rejetée"],
+						example: "Validée",
+						description: "Décision à appliquer à la réservation"
+					)
+				]
+			)
+		),
+		responses: [
+			new OA\Response(
+				response: 200,
+				description: "Décision appliquée avec succès",
+				content: new OA\JsonContent(ref: "#/components/schemas/ReservationWithRelations")
+			),
+			new OA\Response(
+				response: 403,
+				description: "Action non autorisée",
+				content: new OA\JsonContent(
+					oneOf: [
+						new OA\Schema(
+							properties: [
+								new OA\Property(
+									property: "message",
+									type: "string",
+									example: "La reservation est déjà passée. Cette action n'est plus possible."
+								)
+							]
+						),
+						new OA\Schema(
+							properties: [
+								new OA\Property(
+									property: "message",
+									type: "string",
+									example: "Le véhicule associé à la réservation n'est pas disponible."
+								)
+							]
+						)
+					]
+				)
+			),
+			new OA\Response(
+				response: 401,
+				description: "Non authentifié",
+				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
+			),
+			new OA\Response(
+				response: 404,
+				description: "Réservation non trouvée",
+				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
+			),
+			new OA\Response(
+				response: 422,
+				description: "Erreur de validation",
+				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
+			),
+			new OA\Response(
+				response: 500,
+				description: "Erreur interne du serveur",
+				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
+			)
+		]
+	)]
 	public function applyDecision(Request $request, string $id): ReservationResource|JsonResponse
 	{
 		if (!$reservation = Reservation::query()->with('vehicle')->find($id)) {
@@ -639,9 +738,8 @@ class ReservationController extends Controller
 			]);
 
 			if ($isValidated) {
-
 				$vehicle->update([
-					'status' =>  VehicleStatusEnum::RESERVED
+					'status' => VehicleStatusEnum::RESERVED
 				]);
 
 				$vehicle->otherReservationExcept($id, $reservation->from, $reservation->to)->update([
