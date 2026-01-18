@@ -2,7 +2,10 @@
 
 namespace App\Models;
 
+use App\Enums\ReservationStatusEnum;
 use App\Enums\VehicleStatusEnum;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -43,5 +46,22 @@ class Vehicle extends Model
 	public function images(): MorphMany
 	{
 		return $this->morphMany(Image::class, "imageable");
+	}
+
+	public function isAvailable(Carbon $from): bool
+	{
+		return $this->reservations()
+			->where('status', ReservationStatusEnum::VALIDATED)
+			->whereDate('to', '>=', $from)
+			->doesntExist();
+	}
+
+	public function otherReservationExcept(string $reservationId, Carbon $from, Carbon $to): HasMany
+	{
+		return $this->reservations()
+			->where('status', ReservationStatusEnum::PENDING)
+			->whereNot('id', $reservationId)
+			->whereDate('from', '<=', $to)
+			->whereDate('to', '>=', $from);
 	}
 }

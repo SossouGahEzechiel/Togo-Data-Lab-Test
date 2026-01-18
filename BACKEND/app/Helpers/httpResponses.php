@@ -21,11 +21,24 @@ if (!function_exists("_400")) {
 	 * Returns a 404 JSON response with a specified message.
 	 *
 	 * @param string $message The message to include in the response
-	 * @return JsonResponse A JSON response with a 404 status code
+	 * @return JsonResponse A JSON response with a 400 status code
 	 */
-	function _400(string $message = 'Action non autorisée'): JsonResponse
+	function _400(string $message = 'Requête invalide'): JsonResponse
 	{
 		return response()->json(['message' => $message], SymfonyResponse::HTTP_BAD_REQUEST);
+	}
+}
+
+if (!function_exists("_403")) {
+	/**
+	 * Returns a 404 JSON response with a specified message.
+	 *
+	 * @param string $message The message to include in the response
+	 * @return JsonResponse A JSON response with a 403 status code
+	 */
+	function _403(string $message = 'Accès refusé.'): JsonResponse
+	{
+		return response()->json(['message' => $message], SymfonyResponse::HTTP_FORBIDDEN);
 	}
 }
 

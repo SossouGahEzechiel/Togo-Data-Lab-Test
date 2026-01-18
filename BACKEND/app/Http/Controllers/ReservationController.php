@@ -200,195 +200,6 @@ class ReservationController extends Controller
 	}
 
 	#[OA\Put(
-		path: "/reservations/{id}/assign-driver",
-		summary: "Assigner un chauffeur à une réservation",
-		description: "Assigne un chauffeur à une réservation (si elle n'est pas déjà passée)",
-		tags: ["Réservations"],
-		security: [["bearerAuth" => []]],
-		parameters: [
-			new OA\Parameter(
-				name: "id",
-				in: "path",
-				required: true,
-				description: "UUID de la réservation",
-				schema: new OA\Schema(
-					type: "string",
-					format: "uuid",
-					example: "550e8400-e29b-41d4-a716-446655440003"
-				)
-			)
-		],
-		requestBody: new OA\RequestBody(
-			required: true,
-			content: new OA\JsonContent(
-				required: ["driverId"],
-				properties: [
-					new OA\Property(
-						property: "driverId",
-						type: "string",
-						format: "uuid",
-						example: "550e8400-e29b-41d4-a716-446655440002",
-						description: "UUID du chauffeur à assigner"
-					)
-				]
-			)
-		),
-		responses: [
-			new OA\Response(
-				response: 200,
-				description: "Chauffeur assigné avec succès",
-				content: new OA\JsonContent(ref: "#/components/schemas/ReservationWithRelations")
-			),
-			new OA\Response(
-				response: 400,
-				description: "La réservation est déjà passée",
-				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
-			),
-			new OA\Response(
-				response: 401,
-				description: "Non authentifié",
-				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
-			),
-			new OA\Response(
-				response: 404,
-				description: "Réservation non trouvée",
-				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
-			),
-			new OA\Response(
-				response: 422,
-				description: "Erreur de validation",
-				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
-			)
-		]
-	)]
-	public function assignDriver(Request $request, string $id): ReservationResource|JsonResponse
-	{
-		if (!$reservation = Reservation::query()->find($id)) {
-			return _404();
-		}
-
-		$request->validate([
-			'driverId' => ['required', 'exists:users,id'],
-		], [], [
-			'driverId' => "Le chauffeur"
-		]);
-
-		if ($reservation->to && now()->isAfter($reservation->to) || $reservation->status === ReservationStatusEnum::PASSED) {
-			return _400("La reservation est déjà passée. Cette action n'est plus possible.");
-		}
-
-		$reservation->update([
-			'driver_id' => $request->input('driverId'),
-		]);
-
-		return new ReservationResource($reservation);
-	}
-
-	#[OA\Put(
-		path: "/reservations/{id}/mark-as-passed",
-		summary: "Marquer une réservation comme terminée",
-		description: "Marque une réservation comme terminée et met à jour le statut du véhicule",
-		tags: ["Réservations"],
-		security: [["bearerAuth" => []]],
-		parameters: [
-			new OA\Parameter(
-				name: "id",
-				in: "path",
-				required: true,
-				description: "UUID de la réservation",
-				schema: new OA\Schema(
-					type: "string",
-					format: "uuid",
-					example: "550e8400-e29b-41d4-a716-446655440003"
-				)
-			)
-		],
-		requestBody: new OA\RequestBody(
-			required: true,
-			content: new OA\JsonContent(
-				required: ["vehicleStatus"],
-				properties: [
-					new OA\Property(
-						property: "vehicleStatus",
-						type: "string",
-						enum: ["available", "reserved", "suspended", "under_repair"],
-						example: "available",
-						description: "Nouveau statut du véhicule après la réservation"
-					),
-					new OA\Property(
-						property: "vehicleStatusReason",
-						type: "string",
-						maxLength: 1023,
-						nullable: true,
-						example: "Véhicule en bon état",
-						description: "Raison du statut (obligatoire si SUSPENDED ou UNDER_REPAIR)"
-					)
-				]
-			)
-		),
-		responses: [
-			new OA\Response(
-				response: 200,
-				description: "Réservation marquée comme terminée avec succès",
-				content: new OA\JsonContent(ref: "#/components/schemas/ReservationWithRelations")
-			),
-			new OA\Response(
-				response: 400,
-				description: "Données invalides",
-				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
-			),
-			new OA\Response(
-				response: 401,
-				description: "Non authentifié",
-				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
-			),
-			new OA\Response(
-				response: 404,
-				description: "Réservation non trouvée",
-				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
-			),
-			new OA\Response(
-				response: 500,
-				description: "Erreur interne du serveur",
-				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
-			)
-		]
-	)]
-	public function markAsPassed(Request $request, string $id): ReservationResource|JsonResponse
-	{
-		if (!$reservation = Reservation::query()->find($id)) {
-			return _404();
-		}
-
-		$request->validate([
-			'vehicleStatus' => ['required', Rule::enum(VehicleStatusEnum::class)],
-			'vehicleStatusReason' => [
-				'required_if:vehicleStatus,' . VehicleStatusEnum::SUSPENDED->value . ',' . VehicleStatusEnum::UNDER_REPAIR->value,
-				'max:1023'
-			]
-		]);
-
-		try {
-			DB::beginTransaction();
-			$reservation->update([
-				'return_date' => now(),
-				'status' => ReservationStatusEnum::PASSED
-			]);
-
-			$reservation->vehicle()->update([
-				'status' => $request->enum('vehicleStatus', VehicleStatusEnum::class),
-				'reason' => $request->input('vehicleStatusReason')
-			]);
-			DB::commit();
-		} catch (Throwable $th) {
-			DB::rollBack();
-			return _500($th->getMessage());
-		}
-
-		return new ReservationResource($reservation->refresh());
-	}
-
-	#[OA\Put(
 		path: "/reservations/{id}",
 		summary: "Mettre à jour une réservation",
 		description: "Met à jour complètement une réservation existante",
@@ -601,5 +412,250 @@ class ReservationController extends Controller
 		$reservation->delete();
 
 		return _200();
+	}
+
+	#[OA\Put(
+		path: "/reservations/{id}/assign-driver",
+		summary: "Assigner un chauffeur à une réservation",
+		description: "Assigne un chauffeur à une réservation (si elle n'est pas déjà passée)",
+		tags: ["Réservations"],
+		security: [["bearerAuth" => []]],
+		parameters: [
+			new OA\Parameter(
+				name: "id",
+				in: "path",
+				required: true,
+				description: "UUID de la réservation",
+				schema: new OA\Schema(
+					type: "string",
+					format: "uuid",
+					example: "550e8400-e29b-41d4-a716-446655440003"
+				)
+			)
+		],
+		requestBody: new OA\RequestBody(
+			required: true,
+			content: new OA\JsonContent(
+				required: ["driverId"],
+				properties: [
+					new OA\Property(
+						property: "driverId",
+						type: "string",
+						format: "uuid",
+						example: "550e8400-e29b-41d4-a716-446655440002",
+						description: "UUID du chauffeur à assigner"
+					)
+				]
+			)
+		),
+		responses: [
+			new OA\Response(
+				response: 200,
+				description: "Chauffeur assigné avec succès",
+				content: new OA\JsonContent(ref: "#/components/schemas/ReservationWithRelations")
+			),
+			new OA\Response(
+				response: 400,
+				description: "La réservation est déjà passée",
+				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
+			),
+			new OA\Response(
+				response: 401,
+				description: "Non authentifié",
+				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
+			),
+			new OA\Response(
+				response: 404,
+				description: "Réservation non trouvée",
+				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
+			),
+			new OA\Response(
+				response: 422,
+				description: "Erreur de validation",
+				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
+			)
+		]
+	)]
+	public function assignDriver(Request $request, string $id): ReservationResource|JsonResponse
+	{
+		if (!$reservation = Reservation::query()->find($id)) {
+			return _404();
+		}
+
+		$request->validate([
+			'driverId' => ['required', 'exists:users,id'],
+		], [], [
+			'driverId' => "Le chauffeur"
+		]);
+
+		if ($reservation->to && now()->isAfter($reservation->to) || $reservation->status === ReservationStatusEnum::PASSED) {
+			return _400("La reservation est déjà passée. Cette action n'est plus possible.");
+		}
+
+		$reservation->update([
+			'driver_id' => $request->input('driverId'),
+		]);
+
+		return new ReservationResource($reservation);
+	}
+
+	#[OA\Put(
+		path: "/reservations/{id}/mark-as-passed",
+		summary: "Marquer une réservation comme terminée",
+		description: "Marque une réservation comme terminée et met à jour le statut du véhicule",
+		tags: ["Réservations"],
+		security: [["bearerAuth" => []]],
+		parameters: [
+			new OA\Parameter(
+				name: "id",
+				in: "path",
+				required: true,
+				description: "UUID de la réservation",
+				schema: new OA\Schema(
+					type: "string",
+					format: "uuid",
+					example: "550e8400-e29b-41d4-a716-446655440003"
+				)
+			)
+		],
+		requestBody: new OA\RequestBody(
+			required: true,
+			content: new OA\JsonContent(
+				required: ["vehicleStatus"],
+				properties: [
+					new OA\Property(
+						property: "vehicleStatus",
+						type: "string",
+						enum: ["available", "reserved", "suspended", "under_repair"],
+						example: "available",
+						description: "Nouveau statut du véhicule après la réservation"
+					),
+					new OA\Property(
+						property: "vehicleStatusReason",
+						type: "string",
+						maxLength: 1023,
+						nullable: true,
+						example: "Véhicule en bon état",
+						description: "Raison du statut (obligatoire si SUSPENDED ou UNDER_REPAIR)"
+					)
+				]
+			)
+		),
+		responses: [
+			new OA\Response(
+				response: 200,
+				description: "Réservation marquée comme terminée avec succès",
+				content: new OA\JsonContent(ref: "#/components/schemas/ReservationWithRelations")
+			),
+			new OA\Response(
+				response: 400,
+				description: "Données invalides",
+				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
+			),
+			new OA\Response(
+				response: 401,
+				description: "Non authentifié",
+				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
+			),
+			new OA\Response(
+				response: 404,
+				description: "Réservation non trouvée",
+				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
+			),
+			new OA\Response(
+				response: 500,
+				description: "Erreur interne du serveur",
+				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
+			)
+		]
+	)]
+	public function markAsPassed(Request $request, string $id): ReservationResource|JsonResponse
+	{
+		if (!$reservation = Reservation::query()->find($id)) {
+			return _404();
+		}
+
+		$request->validate([
+			'vehicleStatus' => ['required', Rule::enum(VehicleStatusEnum::class)],
+			'vehicleStatusReason' => [
+				'required_if:vehicleStatus,' . VehicleStatusEnum::SUSPENDED->value . ',' . VehicleStatusEnum::UNDER_REPAIR->value,
+				'max:1023'
+			]
+		]);
+
+		try {
+			DB::beginTransaction();
+			$reservation->update([
+				'return_date' => now(),
+				'status' => ReservationStatusEnum::PASSED
+			]);
+
+			$reservation->vehicle()->update([
+				'status' => $request->enum('vehicleStatus', VehicleStatusEnum::class),
+				'reason' => $request->input('vehicleStatusReason')
+			]);
+			DB::commit();
+		} catch (Throwable $th) {
+			DB::rollBack();
+			return _500($th->getMessage());
+		}
+
+		return new ReservationResource($reservation->refresh());
+	}
+
+	public function applyDecision(Request $request, string $id): ReservationResource|JsonResponse
+	{
+		if (!$reservation = Reservation::query()->with('vehicle')->find($id)) {
+			return _404();
+		}
+
+		if ($reservation->status === ReservationStatusEnum::PASSED) {
+			return _403("La reservation est déjà passée. Cette action n'est plus possible.");
+		}
+
+		$request->validate([
+			'status' => [
+				'required',
+				Rule::enum(ReservationStatusEnum::class),
+				'in:' . ReservationStatusEnum::VALIDATED->value . ',' . ReservationStatusEnum::REJECTED->value,
+			],
+		]);
+
+		$vehicle = $reservation->vehicle;
+		$isValidated = $request->enum('status', ReservationStatusEnum::class) === ReservationStatusEnum::VALIDATED;
+
+		if ($vehicle->status === VehicleStatusEnum::UNAVAILABLE || $vehicle->status === VehicleStatusEnum::UNDER_REPAIR) {
+			return _403("Le véhicule associé à la réservation n'est pas disponible.");
+		}
+
+		if ($isValidated && !$vehicle->isAvailable($reservation->from)) {
+			return _403("Le véhicule associé à la réservation n'est pas disponible.");
+		}
+
+		try {
+			DB::beginTransaction();
+			$reservation->update([
+				'status' => $request->enum('status', ReservationStatusEnum::class)
+			]);
+
+			if ($isValidated) {
+
+				$vehicle->update([
+					'status' =>  VehicleStatusEnum::RESERVED
+				]);
+
+				$vehicle->otherReservationExcept($id, $reservation->from, $reservation->to)->update([
+					'status' => ReservationStatusEnum::REJECTED
+				]);
+				// Notifier les autres de la décision
+			}
+			DB::commit();
+			// Notifier l'auteur de la demande que celle-ci a été approuvée ou pas
+		} catch (Throwable $th) {
+			DB::rollBack();
+			return _500($th->getMessage());
+		}
+
+		return new ReservationResource($reservation);
 	}
 }
