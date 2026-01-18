@@ -52,7 +52,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/UserWithToken"
+                                    "$ref": "#/components/schemas/User"
                                 }
                             }
                         }
@@ -101,6 +101,385 @@
                     },
                     "401": {
                         "description": "Non authentifié",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/missions": {
+            "get": {
+                "tags": [
+                    "Missions"
+                ],
+                "summary": "Lister toutes les missions",
+                "description": "Retourne la liste de toutes les missions triées par date de début et libellé",
+                "operationId": "8535defd7bbaba602b073824e4b7bc49",
+                "responses": {
+                    "200": {
+                        "description": "Liste des missions récupérée avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Mission"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Non authentifié",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Missions"
+                ],
+                "summary": "Créer une nouvelle mission",
+                "description": "Crée une nouvelle mission avec les informations fournies",
+                "operationId": "331c4fedf7fcde3d350d6f9c256d583f",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "label",
+                                    "description",
+                                    "from"
+                                ],
+                                "properties": {
+                                    "label": {
+                                        "description": "Libellé de la mission",
+                                        "type": "string",
+                                        "maxLength": 255,
+                                        "example": "Mission de livraison urgente"
+                                    },
+                                    "description": {
+                                        "description": "Description détaillée de la mission",
+                                        "type": "string",
+                                        "example": "Livraison de matériel médical vers l'hôpital central"
+                                    },
+                                    "from": {
+                                        "description": "Date de début de la mission",
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-01-15"
+                                    },
+                                    "to": {
+                                        "description": "Date de fin de la mission (optionnelle)",
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-01-20",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Mission créée avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Mission"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Données invalides",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Non authentifié",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erreur de validation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/missions/{id}": {
+            "get": {
+                "tags": [
+                    "Missions"
+                ],
+                "summary": "Afficher une mission",
+                "description": "Retourne les détails d'une mission spécifique avec ses véhicules, utilisateurs et chauffeurs associés",
+                "operationId": "e3e0a43094ae1c0093e0ce6cabd49c08",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "UUID de la mission",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Mission récupérée avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MissionWithRelations"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Non authentifié",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Mission non trouvée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Missions"
+                ],
+                "summary": "Mettre à jour une mission",
+                "description": "Met à jour les informations d'une mission existante",
+                "operationId": "f3aedd3854cadb68bc96ca70a7af8668",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "UUID de la mission",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "label",
+                                    "description",
+                                    "from"
+                                ],
+                                "properties": {
+                                    "label": {
+                                        "type": "string",
+                                        "maxLength": 255,
+                                        "example": "Mission de livraison urgente - Mise à jour"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Livraison de matériel médical vers l'hôpital central - Priorité haute"
+                                    },
+                                    "from": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-01-16"
+                                    },
+                                    "to": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-01-22",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Mission mise à jour avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MissionWithRelations"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Données invalides",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Non authentifié",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Mission non trouvée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erreur de validation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Missions"
+                ],
+                "summary": "Supprimer une mission",
+                "description": "Supprime une mission si elle n'a pas de réservations associées",
+                "operationId": "40a92f27a9ab00b081855c64d07ef2e4",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "UUID de la mission",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Mission supprimée avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SuccessResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Impossible de supprimer (réservations existantes)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Non authentifié",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Mission non trouvée",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -622,21 +1001,85 @@
                 },
                 "type": "object"
             },
-            "User": {
-                "title": "Utilisateur",
-                "description": "Schéma de données d'un utilisateur",
+            "Mission": {
+                "description": "Schéma de base d'une mission",
                 "required": [
                     "id",
-                    "firstName",
-                    "lastName",
-                    "email",
-                    "role",
-                    "isActive"
+                    "label",
+                    "description",
+                    "from"
                 ],
                 "properties": {
                     "id": {
                         "type": "integer",
                         "example": 1
+                    },
+                    "label": {
+                        "type": "string",
+                        "example": "Mission de livraison urgente"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Livraison de matériel médical"
+                    },
+                    "from": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2024-01-15"
+                    },
+                    "to": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2024-01-20",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "MissionWithRelations": {
+                "description": "Mission avec toutes ses relations",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/Mission"
+                    },
+                    {
+                        "properties": {
+                            "vehicles": {
+                                "description": "Véhicules affectés à la mission",
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/Vehicle"
+                                },
+                                "nullable": true
+                            },
+                            "users": {
+                                "description": "Utilisateurs affectés à la mission",
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/User"
+                                },
+                                "nullable": true
+                            },
+                            "drivers": {
+                                "description": "Chauffeurs affectés à la mission",
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/User"
+                                },
+                                "nullable": true
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "User": {
+                "description": "Schéma de données d'un utilisateur",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "550e8400-e29b-41d4-a716-446655440002"
                     },
                     "firstName": {
                         "type": "string",
@@ -653,11 +1096,6 @@
                     },
                     "role": {
                         "type": "string",
-                        "enum": [
-                            "admin",
-                            "user",
-                            "moderator"
-                        ],
                         "example": "user"
                     },
                     "phone": {
@@ -676,28 +1114,14 @@
                             }
                         ],
                         "nullable": true
+                    },
+                    "token": {
+                        "type": "string",
+                        "example": "1|abcdefgh1234567890",
+                        "nullable": true
                     }
                 },
                 "type": "object"
-            },
-            "UserWithToken": {
-                "title": "Utilisateur avec token",
-                "description": "Schéma de données d'un utilisateur avec token d'authentification",
-                "allOf": [
-                    {
-                        "$ref": "#/components/schemas/User"
-                    },
-                    {
-                        "properties": {
-                            "token": {
-                                "description": "Token d'authentification Bearer",
-                                "type": "string",
-                                "example": "1|abcdefgh1234567890"
-                            }
-                        },
-                        "type": "object"
-                    }
-                ]
             },
             "Vehicle": {
                 "description": "Schéma de données d'un véhicule",
@@ -713,8 +1137,9 @@
                 ],
                 "properties": {
                     "id": {
-                        "type": "integer",
-                        "example": 1
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "550e8400-e29b-41d4-a716-446655440001"
                     },
                     "brand": {
                         "type": "string",
@@ -784,6 +1209,10 @@
         }
     },
     "tags": [
+        {
+            "name": "Missions",
+            "description": "Gestion des missions"
+        },
         {
             "name": "Véhicules",
             "description": "Gestion des véhicules"

@@ -41,7 +41,7 @@ class AuthController extends Controller
 			new OA\Response(
 				response: 200,
 				description: "Connexion réussie",
-				content: new OA\JsonContent(ref: "#/components/schemas/UserWithToken")
+				content: new OA\JsonContent(ref: "#/components/schemas/User")
 			),
 			new OA\Response(
 				response: 400,

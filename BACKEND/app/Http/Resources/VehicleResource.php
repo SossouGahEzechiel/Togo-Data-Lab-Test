@@ -11,7 +11,12 @@ use OpenApi\Attributes as OA;
 	description: "Schéma de données d'un véhicule",
 	required: ["id", "brand", "model", "type", "registrationNumber", "registrationDate", "seatsCount", "status"],
 	properties: [
-		new OA\Property(property: "id", type: "integer", example: 1),
+		new OA\Property(
+			property: "id",
+			type: "string",
+			format: "uuid",
+			example: "550e8400-e29b-41d4-a716-446655440001"
+		),
 		new OA\Property(property: "brand", type: "string", example: "Toyota"),
 		new OA\Property(property: "model", type: "string", example: "Corolla"),
 		new OA\Property(
@@ -20,7 +25,7 @@ use OpenApi\Attributes as OA;
 			enum: ["car", "motorcycle", "truck", "van", "bus"],
 			example: "car"
 		),
-		new OA\Property(property: "registrationNumber", type: "string", example: "TG G/A 1024"),
+		new OA\Property(property: "registrationNumber", type: "string", example: "AB-123-CD"),
 		new OA\Property(property: "registrationDate", type: "string", format: "date", example: "2023-01-15"),
 		new OA\Property(property: "seatsCount", type: "integer", example: 5),
 		new OA\Property(
