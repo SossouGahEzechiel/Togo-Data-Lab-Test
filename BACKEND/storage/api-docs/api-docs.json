@@ -1192,13 +1192,13 @@
                                         "description": "Type de véhicule",
                                         "type": "string",
                                         "enum": [
-                                            "car",
-                                            "motorcycle",
-                                            "truck",
-                                            "van",
-                                            "bus"
+                                            "Voiture",
+                                            "Moto",
+                                            "Pick up",
+                                            "Mini bus",
+                                            "Bus"
                                         ],
-                                        "example": "car"
+                                        "example": "Voiture"
                                     },
                                     "registrationNumber": {
                                         "description": "Numéro d'immatriculation",
@@ -1224,12 +1224,13 @@
                                         "description": "Statut du véhicule",
                                         "type": "string",
                                         "enum": [
-                                            "available",
-                                            "reserved",
-                                            "suspended",
-                                            "under_repair"
+                                            "Disponible",
+                                            "Indisponible",
+                                            "En réparation",
+                                            "Réservé",
+                                            "Suspendu"
                                         ],
-                                        "example": "available"
+                                        "example": "Disponible"
                                     },
                                     "reason": {
                                         "description": "Raison du statut (obligatoire si SUSPENDED ou UNDER_REPAIR)",

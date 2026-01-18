@@ -90,8 +90,8 @@ class VehicleController extends Controller
 							new OA\Property(
 								property: "type",
 								type: "string",
-								enum: ["car", "motorcycle", "truck", "van", "bus"],
-								example: "car",
+								enum: ["Voiture", "Moto", "Pick up", "Mini bus", "Bus"],
+								example: "Voiture",
 								description: "Type de véhicule"
 							),
 							new OA\Property(
@@ -120,8 +120,8 @@ class VehicleController extends Controller
 							new OA\Property(
 								property: "status",
 								type: "string",
-								enum: ["available", "reserved", "suspended", "under_repair"],
-								example: "available",
+								enum: ["Disponible", "Indisponible", "En réparation", "Réservé", "Suspendu"],
+								example: "Disponible",
 								description: "Statut du véhicule"
 							),
 							new OA\Property(
