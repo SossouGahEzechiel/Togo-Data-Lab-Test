@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+	/* Style pour le mode clair */
+	:root {
+		--color-primary: 0 152 116;
+		--color-secondary: 255 193 7;
+		--color-background: 255 255 255;
+		--color-surface: 249 250 251;
+		--color-text: 31 41 51;
+	}
+
+	/* Style pour le mode sombre */
+	.dark {
+		--color-background: 31 41 51;
+		--color-surface: 50 64 77;
+		--color-text: 245 246 247;
+	}
+
+	body {
+		@apply bg-white dark:bg-dark-900 text-gray-900 dark:text-gray-100 transition-colors duration-200;
+	}
+}
+
+@layer components {
+	/* Bouton principal style togolais */
+	.btn-primary {
+		@apply bg-primary-500 hover:bg-primary-600 dark:bg-primary-600 dark:hover:bg-primary-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200;
+	}
+
+	.btn-secondary {
+		@apply bg-secondary-500 hover:bg-secondary-600 dark:bg-secondary-600 dark:hover:bg-secondary-700 text-gray-900 font-semibold py-2 px-4 rounded-lg transition-colors duration-200;
+	}
+
+	/* Cartes */
+	.card {
+		@apply bg-white dark:bg-dark-800 rounded-lg shadow-md p-6 transition-colors duration-200;
+	}
+
+	/* Input style */
+	.input-field {
+		@apply w-full px-4 py-2 border border-gray-300 dark:border-dark-600 rounded-lg bg-white dark:bg-dark-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-600 focus:border-transparent transition-colors duration-200;
+	}
+}
