@@ -37,26 +37,13 @@ import {
 	BuildingOfficeIcon
 } from '@heroicons/vue/24/outline'
 
+import { sidebarMenu } from "~/utils/sidebarConfig";
+
 interface Props {
 	collapsed?: boolean
 }
 
 defineProps<Props>()
-
-// Configuration du menu
-const sidebarMenu = [
-	{ id: 1, name: 'Tableau de bord', url: '/', icon: 'HomeIcon' },
-	{ id: 2, name: 'Véhicules', url: '/vehicles', icon: 'TruckIcon' },
-	{ id: 3, name: 'Réservations', url: '/reservations', icon: 'ClipboardDocumentListIcon' },
-	{ id: 4, name: 'Nouvelle réservation', url: '/reservations/new', icon: 'PlusCircleIcon' },
-	{ id: 5, name: 'Historique', url: '/history', icon: 'ClockIcon' },
-	{ id: 6, name: 'Utilisateurs', url: '/users', icon: 'UsersIcon' },
-	{ id: 7, name: 'Employés', url: '/employees', icon: 'BriefcaseIcon' },
-	{ id: 8, name: 'Services', url: '/services', icon: 'BuildingOfficeIcon' },
-	{ id: 9, name: 'Rapports', url: '/reports', icon: 'ChartBarIcon' },
-	{ id: 10, name: 'Documents', url: '/documents', icon: 'DocumentTextIcon' },
-	{ id: 11, name: 'Paramètres', url: '/settings', icon: 'Cog6ToothIcon' },
-]
 
 // Map des icônes
 const iconComponents = {

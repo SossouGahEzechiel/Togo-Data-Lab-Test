@@ -20,6 +20,20 @@ export const useAuthStore = defineStore("AuthStore", {
 		fullName: (state) => {
 			return `${state.user?.firstName} ${state.user?.lastName}`;
 		},
+		userInitials: (state) => {
+			if (!state.user) {
+				return "";
+			}
+
+			const firstName = state.user.firstName?.trim();
+			const lastName = state.user.lastName?.trim();
+
+			if (!firstName || !lastName) {
+				return "";
+			}
+
+			return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+		},
 	},
 	actions: {
 		async login(credentials: LoginCredential) {

@@ -132,11 +132,11 @@
 								class="flex items-center gap-x-3 rounded-lg p-2 text-sm font-semibold text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-dark-700">
 								<div class="flex items-center space-x-3">
 									<div class="w-8 h-8 rounded-full bg-primary-500 flex items-center justify-center">
-										<span class="text-white font-bold text-sm">JD</span>
+										<span class="text-white font-bold text-sm">{{ userInitials }}</span>
 									</div>
 									<div class="hidden sm:block text-left">
-										<p class="text-sm font-medium text-gray-900 dark:text-white">John Doe</p>
-										<p class="text-xs text-gray-500 dark:text-gray-400">Administrateur</p>
+										<p class="text-sm font-medium text-gray-900 dark:text-white">{{ fullName }}</p>
+										<p class="text-xs text-gray-500 dark:text-gray-400">{{ user?.role }}</p>
 									</div>
 								</div>
 								<ChevronDownIcon class="w-4 h-4" />
@@ -223,10 +223,12 @@ import {
 	Cog6ToothIcon,
 	ArrowRightOnRectangleIcon
 } from '@heroicons/vue/24/outline'
-import Sidebar from '~/components/partials/Sidebar.vue'
+import Sidebar from '~/components/partials/Sidebar.vue';
+import { useAuthStore } from '~/stores/AuthStore';
 
 const pageTitle = useState('pageTitle', () => 'Tableau de bord')
-const pageDescription = useState('pageDescription', () => 'Bienvenue sur votre tableau de bord')
+const pageDescription = useState('pageDescription', () => 'Bienvenue sur votre tableau de bord');
+const { user, fullName, userInitials } = storeToRefs(useAuthStore());
 
 // États pour les menus
 const isMobileSidebarOpen = ref(false)
