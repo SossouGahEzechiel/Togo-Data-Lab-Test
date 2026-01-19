@@ -63,20 +63,9 @@
 			<!-- Header -->
 			<header
 				class="sticky top-0 z-30 flex h-16 items-center gap-x-4 border-b border-gray-200 dark:border-dark-700 bg-white dark:bg-dark-800 px-4 shadow-sm sm:px-6 lg:px-8">
-				<button @click="toggleMobileSidebar" type="button"
-					class="lg:hidden -m-2.5 p-2.5 text-gray-700 dark:text-gray-300">
-					<Bars3Icon class="w-6 h-6" />
-				</button>
-
-				<!-- Bouton pour rétracter/étendre la sidebar sur desktop -->
-				<button @click="toggleSidebar"
-					class="hidden lg:flex items-center justify-center w-8 h-8 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 ml-2">
-					<ChevronLeftIcon v-if="!isSidebarCollapsed" class="w-5 h-5" />
-					<ChevronRightIcon v-else class="w-5 h-5" />
-				</button>
+				<!-- ... -->
 
 				<div class="flex flex-1 justify-between items-center">
-					<!-- Titre de la page -->
 					<div>
 						<h1 class="text-lg font-semibold text-gray-900 dark:text-white">
 							{{ pageTitle }}
@@ -86,10 +75,9 @@
 						</p>
 					</div>
 
-					<!-- Contrôles du header -->
 					<div class="flex items-center gap-x-4">
 						<!-- Sélecteur de thème -->
-						<div class="relative">
+						<div class="relative" @click.stop>
 							<button @click="toggleThemeMenu"
 								class="flex items-center gap-x-1.5 rounded-lg p-2 text-sm font-semibold text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-dark-700">
 								<SunIcon v-if="!isDarkMode" class="w-5 h-5 text-yellow-500" />
@@ -101,33 +89,38 @@
 							</button>
 
 							<!-- Menu déroulant du thème -->
-							<div v-if="isThemeMenuOpen"
-								class="absolute right-0 z-10 mt-2 w-40 origin-top-right rounded-md bg-white dark:bg-dark-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-								<div class="py-1">
-									<button @click="setTheme('light')"
-										class="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-700">
-										<SunIcon class="w-4 h-4 mr-3 text-yellow-500" />
-										Mode clair
-									</button>
-									<button @click="setTheme('dark')"
-										class="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-700">
-										<MoonIcon class="w-4 h-4 mr-3 text-blue-400" />
-										Mode sombre
-									</button>
-									<button @click="setTheme('system')"
-										class="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-700">
-										<ComputerDesktopIcon class="w-4 h-4 mr-3 text-gray-500" />
-										Système
-									</button>
+							<Transition enter-active-class="transition ease-out duration-100"
+								enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
+								leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100"
+								leave-to-class="transform opacity-0 scale-95">
+								<div v-if="isThemeMenuOpen"
+									class="absolute right-0 z-10 mt-2 w-40 origin-top-right rounded-md bg-white dark:bg-dark-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+									<div class="py-1">
+										<button @click="setTheme('light')"
+											class="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-700">
+											<SunIcon class="w-4 h-4 mr-3 text-yellow-500" />
+											Mode clair
+										</button>
+										<button @click="setTheme('dark')"
+											class="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-700">
+											<MoonIcon class="w-4 h-4 mr-3 text-blue-400" />
+											Mode sombre
+										</button>
+										<button @click="setTheme('system')"
+											class="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-700">
+											<ComputerDesktopIcon class="w-4 h-4 mr-3 text-gray-500" />
+											Système
+										</button>
+									</div>
 								</div>
-							</div>
+							</Transition>
 						</div>
 
 						<!-- Séparateur -->
 						<div class="h-6 w-px bg-gray-200 dark:bg-dark-700" />
 
 						<!-- Menu utilisateur -->
-						<div class="relative">
+						<div class="relative" @click.stop>
 							<button @click="toggleUserMenu"
 								class="flex items-center gap-x-3 rounded-lg p-2 text-sm font-semibold text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-dark-700">
 								<div class="flex items-center space-x-3">
@@ -143,27 +136,32 @@
 							</button>
 
 							<!-- Menu déroulant utilisateur -->
-							<div v-if="isUserMenuOpen"
-								class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white dark:bg-dark-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-								<div class="py-1">
-									<a href="#"
-										class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-700">
-										<UserCircleIcon class="w-4 h-4 mr-3" />
-										Mon profil
-									</a>
-									<a href="#"
-										class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-700">
-										<Cog6ToothIcon class="w-4 h-4 mr-3" />
-										Paramètres
-									</a>
-									<div class="border-t border-gray-100 dark:border-dark-700"></div>
-									<button @click="logout"
-										class="flex items-center w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-dark-700">
-										<ArrowRightOnRectangleIcon class="w-4 h-4 mr-3" />
-										Déconnexion
-									</button>
+							<Transition enter-active-class="transition ease-out duration-100"
+								enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
+								leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100"
+								leave-to-class="transform opacity-0 scale-95">
+								<div v-if="isUserMenuOpen"
+									class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white dark:bg-dark-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+									<div class="py-1">
+										<a href="#"
+											class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-700">
+											<UserCircleIcon class="w-4 h-4 mr-3" />
+											Mon profil
+										</a>
+										<a href="#"
+											class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-700">
+											<Cog6ToothIcon class="w-4 h-4 mr-3" />
+											Paramètres
+										</a>
+										<div class="border-t border-gray-100 dark:border-dark-700"></div>
+										<button @click="logout"
+											class="flex items-center w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-dark-700">
+											<ArrowRightOnRectangleIcon class="w-4 h-4 mr-3" />
+											Déconnexion
+										</button>
+									</div>
 								</div>
-							</div>
+							</Transition>
 						</div>
 					</div>
 				</div>
@@ -228,7 +226,9 @@ import { useAuthStore } from '~/stores/AuthStore';
 
 const pageTitle = useState('pageTitle', () => 'Tableau de bord')
 const pageDescription = useState('pageDescription', () => 'Bienvenue sur votre tableau de bord');
-const { user, fullName, userInitials } = storeToRefs(useAuthStore());
+
+const authStore = useAuthStore();
+const { user, fullName, userInitials } = storeToRefs(authStore);
 
 // États pour les menus
 const isMobileSidebarOpen = ref(false)
@@ -260,24 +260,27 @@ const toggleSidebar = () => {
 }
 
 const setTheme = (theme: string) => {
-	if (theme === 'dark') {
-		document.documentElement.classList.add('dark')
-		isDarkMode.value = true
-	} else if (theme === 'light') {
-		document.documentElement.classList.remove('dark')
-		isDarkMode.value = false
-	} else {
-		// Système
-		if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-			document.documentElement.classList.add('dark')
+	if (process.client) {
+		const root = document.documentElement
+		if (theme === 'dark') {
+			root.classList.add('dark')
 			isDarkMode.value = true
-		} else {
-			document.documentElement.classList.remove('dark')
+		} else if (theme === 'light') {
+			root.classList.remove('dark')
 			isDarkMode.value = false
+		} else {
+			// Système
+			if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+				root.classList.add('dark')
+				isDarkMode.value = true
+			} else {
+				root.classList.remove('dark')
+				isDarkMode.value = false
+			}
 		}
+		localStorage.setItem('theme', theme)
+		isThemeMenuOpen.value = false
 	}
-	localStorage.setItem('theme', theme)
-	isThemeMenuOpen.value = false
 }
 
 // Initialisation du thème
@@ -292,14 +295,17 @@ const closeAllMenus = () => {
 	isThemeMenuOpen.value = false
 }
 
-const logout = () => {
-	// Logique de déconnexion
-	console.log('Déconnexion...')
-	navigateTo('/login')
+const logout = async () => {
+	await authStore.logout();
+	navigateTo(AppUrl.LOGIN);
 }
 
 // Écouteur pour fermer les menus
 onMounted(() => {
+	const savedTheme = localStorage.getItem('theme') || 'system'
+	setTheme(savedTheme)
+
+	// Ajouter l'écouteur de clics
 	document.addEventListener('click', closeAllMenus)
 })
 
