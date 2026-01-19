@@ -31,7 +31,7 @@ export const sidebarMenu = [
 		id: "historical",
 		name: "Mon historique",
 		icon: "ClockIcon", // ou "DocumentTextIcon"
-		url: AppUrl.USER_DETAILS,
+		url: AppUrl.parameterize(AppUrl.USER_DETAILS, useAuthStore().user?.id || ""),
 	},
 	{
 		id: "vehicles",

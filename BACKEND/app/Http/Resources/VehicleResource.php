@@ -53,7 +53,7 @@ class VehicleResource extends JsonResource
 			'model' => $this->model,
 			'type' => $this->type,
 			'registrationNumber' => $this->registration_number,
-			'registrationDate' => $this->registration_date,
+			'registrationDate' => $this->registration_date->format('Y-m-d'),
 			'seatsCount' => $this->seats_count,
 			'status' => $this->status,
 			'reason' => $this->reason,

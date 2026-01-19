@@ -34,6 +34,9 @@ export const ApiUrl = {
 	RESET_PASSWORD: "/auth/reset-password",
 	CONFIGURE_PASSWORD: "/auth/configure-password",
 
+	VEHICLES: "/vehicles",
+	VEHICLE_BY_ID: "/vehicles/:id",
+
 
 	/**
  * Fonction pour les url à paramètres sous la forme url/:id

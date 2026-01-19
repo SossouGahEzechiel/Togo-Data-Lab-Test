@@ -14,4 +14,3 @@ enum VehicleStatusEnum: String {
 	case RESERVED = "Réservé";
 	case SUSPENDED = "Suspendu";
 }
-

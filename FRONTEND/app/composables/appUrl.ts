@@ -14,7 +14,7 @@ export const AppUrl = {
 	MISSION_DETAILS: "details-d-une-mission/:id",
 
 	VEHICLES_LISTE: "gestion-des-vehicules",
-	VEHICLE_DETAILS: "details-d-un-vehicule/:id",
+	VEHICLE_DETAILS: "gestion-des-vehicules/:id",
 
 	USERS_LIST: "gestion-des-utilisateurs",
 	USER_DETAILS: "details-d-un-utilisateur/:id",
