@@ -1,7 +1,7 @@
 export const AppUrl = {
 	// Url Publiques
 	HOME: "/",
-	LOGIN: "/auth",
+	LOGIN: "/me-connecter",
 	REGISTER: "/register",
 	FORGOT_PASSWORD: "/forgot-password",
 	CONFIRM_MY_PASSWORD: "/confirmer-mon-mot-de-passe",

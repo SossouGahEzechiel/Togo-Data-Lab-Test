@@ -8,7 +8,12 @@ export default defineNuxtConfig({
 			titleTemplate: "%s | AutoParc TG",
 		},
 	},
-	modules: ["@nuxtjs/tailwindcss", "@nuxtjs/color-mode", "@pinia/nuxt"],
+	modules: [
+		"@nuxtjs/tailwindcss",
+		"@nuxtjs/color-mode",
+		"@pinia/nuxt",
+		'@pinia-plugin-persistedstate/nuxt',
+	],
 
 	css: ["~/assets/css/tailwind.css"],
 
@@ -22,4 +27,15 @@ export default defineNuxtConfig({
 	colorMode: {
 		classSuffix: "",
 	},
+
+	runtimeConfig: {
+		public: {
+			encryptionSecret: process.env.VITE_NUXT_PUBLIC_ENCRYPTION_SECRET,
+		},
+	},
+	ssr: false,
+
+	// pinia: {
+	// 	storesDirs: ["./stores/**"],
+	// },
 });

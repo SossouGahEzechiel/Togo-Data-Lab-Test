@@ -32,7 +32,7 @@ export const ApiUrl = {
 
 	FORGOT_PASSWORD: "/auth/forgot-password",
 	RESET_PASSWORD: "/auth/reset-password",
-	DEFINE_PASSWORD: "/auth/define-password",
+	CONFIGURE_PASSWORD: "/auth/configure-password",
 
 
 	/**

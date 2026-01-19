@@ -72,4 +72,6 @@ yarn preview
 bun run preview
 ```
 
+// Générer la clé de chiffrement
+
 Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.

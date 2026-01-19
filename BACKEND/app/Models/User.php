@@ -21,7 +21,7 @@ class User extends Authenticatable
 		'role',
 		'phone',
 		'password',
-		'password_reset_at',
+		'has_configured_password',
 		'is_active'
 	];
 
@@ -36,7 +36,8 @@ class User extends Authenticatable
 		return [
 			'email_verified_at' => 'datetime',
 			'password' => 'hashed',
-			'is_active' => 'boolean'
+			'is_active' => 'boolean',
+			'has_configured_password' => 'boolean'
 		];
 	}
 

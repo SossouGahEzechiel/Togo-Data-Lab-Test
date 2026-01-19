@@ -19,6 +19,7 @@ use OpenApi\Attributes as OA;
 		new OA\Property(property: "role", type: "string", enum: ["admin", "user", "moderator"], example: "user"),
 		new OA\Property(property: "phone", type: "string", nullable: true, example: "+33123456789"),
 		new OA\Property(property: "isActive", type: "boolean", example: true),
+		new OA\Property(property: "hasConfiguredPassword", type: "boolean", example: false),
 		new OA\Property(property: "image", ref: "#/components/schemas/Image", nullable: true),
 	]
 )]
@@ -52,6 +53,7 @@ class UserResource extends JsonResource
 			'role' => $this->role,
 			'phone' => $this->phone,
 			'isActive' => $this->is_active,
+			'hasConfiguredPassword' => $this->has_configured_password,
 			'image' => new ImageResource($this->whenLoaded('image')),
 			'token' => $this->whenHas('token')
 		];

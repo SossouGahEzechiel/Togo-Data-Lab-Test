@@ -1,13 +1,9 @@
 import { defineStore } from "pinia";
-import type { LoginCredential, User } from "~/types/User";
-
-// interface AuthStoreInterface {
-// 	user: User | null;
-// 	token: string | null;
-// 	validationErrors: {};
-// 	newPasswordErrors: {};
-// 	resetValidationErrors: {};
-// }
+import type {
+	ConfigurePasswordCredential,
+	LoginCredential,
+	User,
+} from "~/types/User";
 
 export const useAuthStore = defineStore("AuthStore", {
 	state: () => ({
@@ -17,7 +13,6 @@ export const useAuthStore = defineStore("AuthStore", {
 		newPasswordErrors: {} as ValidationErrors,
 		resetValidationErrors: {} as ValidationErrors,
 	}),
-
 	getters: {
 		isAuthenticated: (state) => {
 			return !!(state.user && state.token);
@@ -26,29 +21,19 @@ export const useAuthStore = defineStore("AuthStore", {
 			return `${state.user?.firstName} ${state.user?.lastName}`;
 		},
 	},
-
 	actions: {
 		async login(credentials: LoginCredential) {
 			const api = useApi();
-
 			try {
 				const { data } = await api.post<User>(ApiUrl.LOGIN, credentials);
-
 				this.user = data;
 				this.token = data.token;
-
-				useAlert().showAlert(
-					`Ravi de vous revoir ${data.lastName} ${data.firstName}`,
-					"success",
-				);
 			} catch (error) {
 				this.validationErrors = useValidationErrors(error);
 				console.log("General error:", this.validationErrors._general);
-
 				throw error;
 			}
 		},
-
 		async logout() {
 			try {
 				await useApi().post(ApiUrl.LOGOUT, {});
@@ -59,28 +44,22 @@ export const useAuthStore = defineStore("AuthStore", {
 				navigateTo(AppUrl.LOGIN);
 			}
 		},
-
-		async initPasswordReset(email: string) {
+		async configurePassword(credentials: ConfigurePasswordCredential) {
 			try {
-				await useApi().post(ApiUrl.FORGOT_PASSWORD, { email });
+				const { data } = await useApi().put<User>(ApiUrl.CONFIGURE_PASSWORD, {
+					...credentials,
+				});
+				this.user = data;
 			} catch (error: any) {
 				this.resetValidationErrors = useValidationErrors(error);
-				throw new Error(
-					error.data?.message ||
-						error.message ||
-						error.error ||
-						"Une erreur est survenue",
-				);
+				throw error;
 			}
 		},
-
 		cleanStorage() {
 			this.user = null;
 			this.token = null;
 		},
 	},
-
-	// Configuration de la persistance
 	persist: {
 		storage: secureLsStorage,
 		// Optionnel : personnaliser la clé de stockage

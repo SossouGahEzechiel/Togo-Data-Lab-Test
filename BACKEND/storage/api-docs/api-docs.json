@@ -117,6 +117,117 @@
                 ]
             }
         },
+        "/auth/configure-password": {
+            "put": {
+                "tags": [
+                    "Authentification"
+                ],
+                "summary": "Configurer le mot de passe utilisateur",
+                "description": "Met à jour le mot de passe de l'utilisateur authentifié avec des règles de sécurité strictes",
+                "operationId": "4083a0a3d69807cca4afecb58ec62700",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "password",
+                                    "password_confirmation"
+                                ],
+                                "properties": {
+                                    "password": {
+                                        "description": "Nouveau mot de passe (minimum 8 caractères, lettres majuscules/minuscules, chiffres et symboles)",
+                                        "type": "string",
+                                        "format": "password",
+                                        "minLength": 8,
+                                        "example": "Str0ngP@ssw0rd!"
+                                    },
+                                    "password_confirmation": {
+                                        "description": "Confirmation du mot de passe",
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "Str0ngP@ssw0rd!"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Mot de passe mis à jour avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Données invalides ou mot de passe faible",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Non authentifié",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erreur de validation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The given data was invalid."
+                                        },
+                                        "errors": {
+                                            "properties": {
+                                                "password": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": [
+                                                            "The password must be at least 8 characters.",
+                                                            "The password must contain at least one uppercase and one lowercase letter.",
+                                                            "The password must contain at least one symbol.",
+                                                            "The password must contain at least one number.",
+                                                            "The password confirmation does not match.",
+                                                            "The given password has appeared in a data leak. Please choose a different password."
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/missions": {
             "get": {
                 "tags": [
@@ -1992,6 +2103,10 @@
                     "isActive": {
                         "type": "boolean",
                         "example": true
+                    },
+                    "hasConfiguredPassword": {
+                        "type": "boolean",
+                        "example": false
                     },
                     "image": {
                         "oneOf": [
