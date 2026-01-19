@@ -63,7 +63,6 @@
 			<!-- Header -->
 			<header
 				class="sticky top-0 z-30 flex h-16 items-center gap-x-4 border-b border-gray-200 dark:border-dark-700 bg-white dark:bg-dark-800 px-4 shadow-sm sm:px-6 lg:px-8">
-				<!-- ... -->
 
 				<div class="flex flex-1 justify-between items-center">
 					<div>
@@ -170,6 +169,7 @@
 			<!-- Main content area -->
 			<main class="flex-1">
 				<div class="py-6 px-4 sm:px-6 lg:px-8">
+					<Alert />
 					<slot />
 				</div>
 			</main>
@@ -209,10 +209,7 @@
 
 <script setup lang="ts">
 import {
-	Bars3Icon,
 	XMarkIcon,
-	ChevronLeftIcon,
-	ChevronRightIcon,
 	ChevronDownIcon,
 	SunIcon,
 	MoonIcon,
@@ -221,6 +218,7 @@ import {
 	Cog6ToothIcon,
 	ArrowRightOnRectangleIcon
 } from '@heroicons/vue/24/outline'
+import Alert from '~/components/partials/Alert.vue';
 import Sidebar from '~/components/partials/Sidebar.vue';
 import { useAuthStore } from '~/stores/AuthStore';
 

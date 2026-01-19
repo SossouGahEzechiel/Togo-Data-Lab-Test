@@ -77,7 +77,7 @@
 <script setup lang="ts">
 import { EnvelopeIcon, LockClosedIcon } from '@heroicons/vue/16/solid';
 import { TruckIcon } from '@heroicons/vue/24/outline';
-import Spinner from '~/components/partials/spinner.vue';
+import Spinner from '~/components/partials/Spinner.vue';
 import { initLoginCredential, type LoginCredential } from '~/types/User';
 
 definePageMeta({ layout: false, ssr: false });

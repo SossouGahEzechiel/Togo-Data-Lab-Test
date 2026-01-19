@@ -337,7 +337,8 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { initVehicleForm, type Vehicle } from '~/types/Vehicle'
 import { vehicleStatuses, vehicleTypes } from '~/types/VehicleEnums'
 
-const { setPageTitle } = usePageTitle()
+useHead({ title: "Gestion du parc auto-mobile" });
+const { setPageTitle } = usePageTitle();
 const vehicleStore = useVehicleStore();
 const { vehicles, isLoading } = storeToRefs(vehicleStore);
 

@@ -352,6 +352,7 @@ const close = () => {
 watch(() => props.vehicle, (newVehicle) => {
 	if (newVehicle) {
 		Object.assign(form, newVehicle)
+		//@ts-ignore
 		existingImages.value = [...newVehicle.images]
 	} else {
 		Object.assign(form, initVehicleForm())
