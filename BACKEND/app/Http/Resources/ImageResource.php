@@ -13,6 +13,12 @@ use OpenApi\Attributes as OA;
 	required: ["path"],
 	properties: [
 		new OA\Property(
+			property: "id",
+			type: "string",
+			format: "uuid",
+			example: "d4fb2906-11b7-4512-a292-1ec5d46351e2"
+		),
+		new OA\Property(
 			property: "path",
 			type: "string",
 			description: "Chemin d'accès à l'image",
@@ -25,6 +31,7 @@ class ImageResource extends JsonResource
 	public function toArray(Request $request): array
 	{
 		return [
+			'id' => $this->id,
 			'path' => $this->path
 		];
 	}

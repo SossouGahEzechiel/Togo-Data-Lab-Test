@@ -11,7 +11,7 @@ export interface Vehicle {
 	seatsCount: number;
 	status: VehicleStatusEnum;
 	reason: string | null;
-	images: Image[];
+	images: Image[] | File[];
 }
 
 // Fonction helper pour créer un véhicule vide

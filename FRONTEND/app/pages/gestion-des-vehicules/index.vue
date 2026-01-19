@@ -338,7 +338,8 @@ import { initVehicleForm, type Vehicle } from '~/types/Vehicle'
 import { vehicleStatuses, vehicleTypes } from '~/types/VehicleEnums'
 
 const { setPageTitle } = usePageTitle()
-const vehicleStore = useVehicleStore()
+const vehicleStore = useVehicleStore();
+const { vehicles, isLoading } = storeToRefs(vehicleStore);
 
 // État du composant
 const searchQuery = ref('')
@@ -353,10 +354,6 @@ const isDeleteModalOpen = ref(false)
 const modalMode = ref<'create' | 'edit'>('create')
 const selectedVehicle = ref<Vehicle | null>(null)
 const vehicleToDelete = ref<Vehicle | null>(null)
-
-// Computed properties
-const vehicles = computed(() => vehicleStore.vehicles)
-const isLoading = computed(() => vehicleStore.isLoading)
 
 const filteredVehicles = computed(() => {
 	return vehicles.value.filter(vehicle => {

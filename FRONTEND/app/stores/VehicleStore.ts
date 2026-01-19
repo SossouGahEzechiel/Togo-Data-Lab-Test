@@ -26,7 +26,9 @@ export const useVehicleStore = defineStore("VehicleStore", {
 		async findOne(id: string) {
 			this.isLoading = true;
 			try {
-				const { data } = await useApi().get<Vehicle>(ApiUrl.parameterized(ApiUrl.VEHICLE_BY_ID, id));
+				const { data } = await useApi().get<Vehicle>(
+					ApiUrl.parameterized(ApiUrl.VEHICLE_BY_ID, id),
+				);
 				return data;
 			} catch (error) {
 				this.errors = useValidationErrors(error);
@@ -39,7 +41,11 @@ export const useVehicleStore = defineStore("VehicleStore", {
 		async store(vehicle: Vehicle) {
 			this.isPersisting = true;
 			try {
-				const { data } = await useApi().post<Vehicle>(ApiUrl.VEHICLES, vehicle);
+				const formData = this.prepareForm(vehicle);
+				const { data } = await useApi().post<Vehicle>(
+					ApiUrl.VEHICLES,
+					formData,
+				);
 				this.vehicles.push(data);
 			} catch (error) {
 				this.errors = useValidationErrors(error);
@@ -52,9 +58,10 @@ export const useVehicleStore = defineStore("VehicleStore", {
 		async update(vehicle: Vehicle) {
 			this.isPersisting = true;
 			try {
+				const formData = this.prepareForm(vehicle);
 				const { data } = await useApi().put<Vehicle>(
 					ApiUrl.parameterized(ApiUrl.VEHICLE_BY_ID, vehicle.id),
-					vehicle
+					formData,
 				);
 				const index = this.vehicles.findIndex((_) => _.id === vehicle.id);
 				this.vehicles[index] = data;
@@ -77,6 +84,25 @@ export const useVehicleStore = defineStore("VehicleStore", {
 			} finally {
 				this.isPersisting = false;
 			}
+		},
+
+		prepareForm(vehicle: Vehicle) {
+			const formData = new FormData();
+			formData.append("brand", vehicle.brand);
+			formData.append("model", vehicle.model);
+			formData.append("type", vehicle.type);
+			formData.append("registrationNumber", vehicle.registrationNumber);
+			formData.append("registrationDate", vehicle.registrationDate);
+			formData.append("seatsCount", vehicle.seatsCount.toString());
+			formData.append("status", vehicle.status);
+			formData.append("reason", vehicle.reason || "");
+			// TODO: Revoir le chargement des images
+			if (vehicle.images && vehicle.images.length > 0) {
+				for (const image of vehicle.images as File[]) {
+					formData.append("images[]", image);
+				}
+			}
+			return formData;
 		},
 
 		cleanStorage() {
