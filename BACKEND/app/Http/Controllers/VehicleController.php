@@ -100,12 +100,10 @@ class VehicleController extends Controller
 			}])
 			->orderBy('registration_number');
 
-		// Filtrage par période si fourni
 		if ($request->has(['from', 'to'])) {
 			$from = $request->date('from');
 			$to = $request->date('to');
 
-			// Ajouter la logique de filtrage par disponibilité
 			$query->whereDoesntHave('reservations', function ($q) use ($from, $to) {
 				$q->where(function ($query) use ($from, $to) {
 					$query->whereBetween('from', [$from, $to])

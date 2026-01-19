@@ -12,6 +12,7 @@ export interface Vehicle {
 	status: VehicleStatusEnum;
 	reason: string | null;
 	images: Image[] | File[];
+	// reservations: Resev[]
 }
 
 // Fonction helper pour créer un véhicule vide

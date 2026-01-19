@@ -10,7 +10,7 @@ export const useVehicleStore = defineStore("VehicleStore", {
 	}),
 
 	actions: {
-		async getAll() {
+		async findAll() {
 			this.isLoading = true;
 			try {
 				const { data } = await useApi().get<Vehicle[]>(ApiUrl.VEHICLES);

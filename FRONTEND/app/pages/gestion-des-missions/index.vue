@@ -253,7 +253,7 @@ const formatDate = (dateString: string) => {
 
 const loadMissions = async () => {
 	try {
-		await missionStore.getAll();
+		await missionStore.findAll();
 	} catch (error) {
 		console.error('Erreur lors du chargement des missions:', error);
 		useAlert().showAlert('Une erreur est survenue lors du chargement des missions', 'error');

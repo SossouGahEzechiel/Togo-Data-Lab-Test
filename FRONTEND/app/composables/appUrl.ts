@@ -21,7 +21,7 @@ export const AppUrl = {
 
 	RESERVATIONS_LIST: "gestion-des-reservations",
 	RESERVATION_DETAILS: "details-d-une-reservation/:id",
-	RESERVATION_CREATE: "ajouter-une-reservation",
+	RESERVATION_CREATE: "faire-une-reservation",
 	RESERVATION_EDIT: "modifier-une-reservation/:id",
 
 	RESERVATION_AVAILABILITY: "consulter-la-disponibilite",

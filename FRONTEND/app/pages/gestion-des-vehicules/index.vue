@@ -480,7 +480,7 @@ const clearFilters = () => {
 
 const loadVehicles = async () => {
 	try {
-		await vehicleStore.getAll()
+		await vehicleStore.findAll()
 	} catch (error) {
 		console.error('Erreur lors du chargement des véhicules:', error)
 	}

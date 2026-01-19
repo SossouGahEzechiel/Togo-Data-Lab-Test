@@ -1,9 +1,9 @@
 import { defineStore } from "pinia";
-import type { Mission } from "~/types/Mission";
+import type { Reservation } from "~/types/Reservation";
 
-export const useMissionStore = defineStore("MissionStore", {
+export const useReservationStore = defineStore("ReservationStore", {
 	state: () => ({
-		missions: [] as Mission[],
+		reservations: [] as Reservation[],
 		isLoading: false,
 		errors: {} as ValidationErrors,
 		isPersisting: false,
@@ -13,8 +13,10 @@ export const useMissionStore = defineStore("MissionStore", {
 		async findAll() {
 			this.isLoading = true;
 			try {
-				const { data } = await useApi().get<Mission[]>(ApiUrl.MISSIONS);
-				this.missions = data;
+				const { data } = await useApi().get<Reservation[]>(
+					ApiUrl.RESERVATIONS
+				);
+				this.reservations = data;
 			} catch (error) {
 				this.errors = useValidationErrors(error);
 				throw error;
@@ -26,8 +28,8 @@ export const useMissionStore = defineStore("MissionStore", {
 		async findOne(id: string) {
 			this.isLoading = true;
 			try {
-				const { data } = await useApi().get<Mission>(
-					ApiUrl.parameterized(ApiUrl.MISSION_BY_ID, id),
+				const { data } = await useApi().get<Reservation>(
+					ApiUrl.parameterized(ApiUrl.RESERVATION_BY_ID, id)
 				);
 				return data;
 			} catch (error) {
@@ -38,14 +40,15 @@ export const useMissionStore = defineStore("MissionStore", {
 			}
 		},
 
-		async store(mission: Mission) {
+		async store(reservation: Reservation) {
 			this.isPersisting = true;
 			try {
-				const { data } = await useApi().post<Mission>(
-					ApiUrl.MISSIONS,
-					mission,
+				const { data } = await useApi().post<Reservation>(
+					ApiUrl.RESERVATIONS,
+					reservation
 				);
-				this.missions.push(data);
+				this.reservations.push(data);
+				return data;
 			} catch (error) {
 				this.errors = useValidationErrors(error);
 				throw error;
@@ -54,15 +57,18 @@ export const useMissionStore = defineStore("MissionStore", {
 			}
 		},
 
-		async update(mission: Mission) {
+		async update(reservation: Reservation) {
 			this.isPersisting = true;
 			try {
-				const { data } = await useApi().put<Mission>(
-					ApiUrl.parameterized(ApiUrl.MISSION_BY_ID, mission.id),
-					mission,
+				const { data } = await useApi().put<Reservation>(
+					ApiUrl.parameterized(ApiUrl.RESERVATION_BY_ID, reservation.id),
+					reservation
 				);
-				const index = this.missions.findIndex((_) => _.id === mission.id);
-				this.missions[index] = data;
+				const index = this.reservations.findIndex((_) => _.id === reservation.id);
+				if (index !== -1) {
+					this.reservations[index] = data;
+				}
+				return data;
 			} catch (error) {
 				this.errors = useValidationErrors(error);
 				throw error;
@@ -74,8 +80,10 @@ export const useMissionStore = defineStore("MissionStore", {
 		async delete(id: string) {
 			this.isPersisting = true;
 			try {
-				await useApi().del(ApiUrl.parameterized(ApiUrl.MISSION_BY_ID, id));
-				this.missions = this.missions.filter((_) => _.id !== id);
+				await useApi().del(
+					ApiUrl.parameterized(ApiUrl.RESERVATION_BY_ID, id)
+				);
+				this.reservations = this.reservations.filter((_) => _.id !== id);
 			} catch (error) {
 				this.errors = useValidationErrors(error);
 				throw error;
@@ -85,7 +93,7 @@ export const useMissionStore = defineStore("MissionStore", {
 		},
 
 		cleanStorage() {
-			this.missions = [];
+			this.reservations = [];
 			this.isLoading = false;
 			this.errors = {};
 			this.isPersisting = false;
@@ -93,7 +101,7 @@ export const useMissionStore = defineStore("MissionStore", {
 	},
 	persist: {
 		storage: secureLsStorage,
-		key: "mission-store",
-		pick: ["missions"],
+		key: "reservation-store",
+		pick: ["reservations"],
 	},
 });

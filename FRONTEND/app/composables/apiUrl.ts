@@ -40,6 +40,9 @@ export const ApiUrl = {
 	MISSIONS: "/missions",
 	MISSION_BY_ID: "/missions/:id",
 
+	RESERVATIONS: "/reservations",
+	RESERVATION_BY_ID: "/reservations/:id",
+
 
 	/**
  * Fonction pour les url à paramètres sous la forme url/:id
