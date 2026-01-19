@@ -34,7 +34,8 @@ import {
 	ChartBarIcon,
 	DocumentTextIcon,
 	Cog6ToothIcon,
-	BuildingOfficeIcon
+	BuildingOfficeIcon,
+	CalendarDaysIcon
 } from '@heroicons/vue/24/outline'
 
 import { sidebarMenu } from "~/utils/sidebarConfig";
@@ -57,6 +58,7 @@ const iconComponents = {
 	ChartBarIcon,
 	DocumentTextIcon,
 	Cog6ToothIcon,
-	BuildingOfficeIcon
+	BuildingOfficeIcon,
+	CalendarDaysIcon
 }
 </script>

@@ -22,12 +22,17 @@ Route::controller(AuthController::class)->prefix('auth')->group(function () {
 // Route::post('users/{user}', [UserController::class, 'updateImage']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
+	Route::controller(VehicleController::class)->prefix('vehicles')->group(function() {
+		Route::get('available', 'availableVehicles');
+	});
+
 	Route::apiResources([
 		'vehicles' => VehicleController::class,
 		'missions' => MissionController::class,
 		'users' => UserController::class,
 		'reservations' => ReservationController::class
 	]);
+
 
 	Route::controller(ReservationController::class)->prefix('reservations')->group(function () {
 		Route::prefix('{reservation}')->group(function () {

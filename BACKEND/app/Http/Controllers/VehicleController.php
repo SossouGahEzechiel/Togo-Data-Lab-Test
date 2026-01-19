@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\{VehicleStatusEnum, VehicleTypeEnum};
+use App\Enums\{ReservationStatusEnum, VehicleStatusEnum, VehicleTypeEnum};
 use App\Http\Resources\VehicleResource;
 use App\Models\Image;
 use App\Models\Vehicle;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -46,6 +48,80 @@ class VehicleController extends Controller
 			->orderBy('registration_number')
 			->get();
 
+		return VehicleResource::collection($vehicles);
+	}
+
+	#[OA\Get(
+		path: "/vehicles/available",
+		summary: "Lister les véhicules disponibles",
+		description: "Retourne la liste des véhicules disponibles à la réservation, optionnellement filtrés par période",
+		tags: ["Véhicules"],
+		security: [["bearerAuth" => []]],
+		parameters: [
+			new OA\Parameter(
+				name: "from",
+				in: "query",
+				required: false,
+				description: "Date de début pour vérifier la disponibilité (format: YYYY-MM-DD)",
+				schema: new OA\Schema(
+					type: "string",
+					format: "date",
+					example: "2024-01-15"
+				)
+			),
+			new OA\Parameter(
+				name: "to",
+				in: "query",
+				required: false,
+				description: "Date de fin pour vérifier la disponibilité (format: YYYY-MM-DD)",
+				schema: new OA\Schema(
+					type: "string",
+					format: "date",
+					example: "2024-01-20"
+				)
+			)
+		],
+		responses: [
+			new OA\Response(
+				response: 200,
+				description: "Liste des véhicules disponibles récupérée avec succès",
+				content: new OA\JsonContent(
+					type: "array",
+					items: new OA\Items(ref: "#/components/schemas/Vehicle")
+				)
+			)
+		]
+	)]
+	public function availableVehicles(Request $request): AnonymousResourceCollection
+	{
+		$query = Vehicle::query()->where('status', VehicleStatusEnum::AVAILABLE->value)
+			->with(['reservations' => function (HasMany $builder) {
+				return $builder->where('status', ReservationStatusEnum::PENDING->value);
+			}])
+			->orderBy('registration_number');
+
+		// Filtrage par période si fourni
+		if ($request->has(['from', 'to'])) {
+			$from = $request->date('from');
+			$to = $request->date('to');
+
+			// Ajouter la logique de filtrage par disponibilité
+			$query->whereDoesntHave('reservations', function ($q) use ($from, $to) {
+				$q->where(function ($query) use ($from, $to) {
+					$query->whereBetween('from', [$from, $to])
+						->orWhereBetween('to', [$from, $to])
+						->orWhere(function ($q) use ($from, $to) {
+							$q->where('from', '<=', $from)
+								->where('to', '>=', $to);
+						});
+				})->whereIn('status', [
+					ReservationStatusEnum::PENDING->value,
+					ReservationStatusEnum::VALIDATED->value
+				]);
+			});
+		}
+
+		$vehicles = $query->get();
 		return VehicleResource::collection($vehicles);
 	}
 

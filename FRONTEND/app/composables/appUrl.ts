@@ -24,5 +24,7 @@ export const AppUrl = {
 	RESERVATION_CREATE: "ajouter-une-reservation",
 	RESERVATION_EDIT: "modifier-une-reservation/:id",
 
+	RESERVATION_AVAILABILITY: "consulter-la-disponibilite",
+
 	parameterize: (item: string, id: string) => item.replace(":id", id),
 } as const;

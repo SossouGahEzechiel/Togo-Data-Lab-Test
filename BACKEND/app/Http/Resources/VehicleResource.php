@@ -40,6 +40,13 @@ use OpenApi\Attributes as OA;
 			type: "array",
 			items: new OA\Items(ref: "#/components/schemas/Image"),
 			nullable: true
+		),
+		new OA\Property(
+			property: "reservations",
+			type: "array",
+			items: new OA\Items(ref: "#/components/schemas/Reservation"),
+			description: "Réservations associées au véhicule",
+			nullable: true
 		)
 	]
 )]
@@ -58,6 +65,7 @@ class VehicleResource extends JsonResource
 			'status' => $this->status,
 			'reason' => $this->reason,
 			'images' => ImageResource::collection($this->whenLoaded('images')),
+			'reservations' => ReservationResource::collection($this->whenLoaded('reservations'))
 		];
 	}
 }

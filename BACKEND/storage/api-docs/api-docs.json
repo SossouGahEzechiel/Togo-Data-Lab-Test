@@ -1547,6 +1547,60 @@
                 ]
             }
         },
+        "/vehicles/available": {
+            "get": {
+                "tags": [
+                    "Véhicules"
+                ],
+                "summary": "Lister les véhicules disponibles",
+                "description": "Retourne la liste des véhicules disponibles à la réservation, optionnellement filtrés par période",
+                "operationId": "da3f26a8a9fa6a800609e28345a17528",
+                "parameters": [
+                    {
+                        "name": "from",
+                        "in": "query",
+                        "description": "Date de début pour vérifier la disponibilité (format: YYYY-MM-DD)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2024-01-15"
+                        }
+                    },
+                    {
+                        "name": "to",
+                        "in": "query",
+                        "description": "Date de fin pour vérifier la disponibilité (format: YYYY-MM-DD)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2024-01-20"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Liste des véhicules disponibles récupérée avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Vehicle"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/vehicles/{id}": {
             "get": {
                 "tags": [
@@ -1868,7 +1922,7 @@
                     "id": {
                         "type": "string",
                         "format": "uuid",
-                        "example": "550e8400-e29b-41d4-a716-446655440003"
+                        "example": "d4fb2906-11b7-4512-a292-1ec5d46351e2"
                     },
                     "path": {
                         "description": "Chemin d'accès à l'image",
@@ -2212,6 +2266,14 @@
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/Image"
+                        },
+                        "nullable": true
+                    },
+                    "reservations": {
+                        "description": "Réservations associées au véhicule",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Reservation"
                         },
                         "nullable": true
                     }

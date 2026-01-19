@@ -22,6 +22,12 @@ export const sidebarMenu = [
 		url: AppUrl.RESERVATIONS_LIST,
 	},
 	{
+		id: "availability",
+		name: "Consulter la disponibilité",
+		icon: "CalendarDaysIcon", // ou "CalendarDaysIcon"
+		url: AppUrl.RESERVATION_AVAILABILITY,
+	},
+	{
 		id: "new-reservation",
 		name: "Faire une réservation",
 		icon: "PlusCircleIcon", // ou "CalendarIcon"
