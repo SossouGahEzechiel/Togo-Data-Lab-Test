@@ -853,7 +853,7 @@ class ReservationController extends Controller
 		}
 
 		if ($reservation->status === ReservationStatusEnum::PASSED) {
-			return _403("La reservation est déjà passée. Cette action n'est plus possible.");
+			return _403("La reservation est déjà passée. Cette action n'est plus possible.1");
 		}
 
 		$request->validate([
@@ -871,11 +871,11 @@ class ReservationController extends Controller
 		$isValidated = $request->enum('status', ReservationStatusEnum::class) === ReservationStatusEnum::VALIDATED;
 
 		if ($vehicle->status === VehicleStatusEnum::UNAVAILABLE || $vehicle->status === VehicleStatusEnum::UNDER_REPAIR) {
-			return _403("Le véhicule associé à la réservation n'est pas disponible.");
+			return _403("Le véhicule associé à la réservation n'est pas disponible.2");
 		}
 
 		if ($isValidated && !$vehicle->isAvailable($reservation->from, null)) {
-			return _403("Le véhicule associé à la réservation n'est pas disponible.");
+			return _403("Le véhicule associé à la réservation n'est pas disponible.3");
 		}
 
 		try {

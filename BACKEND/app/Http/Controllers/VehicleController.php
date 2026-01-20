@@ -355,7 +355,7 @@ class VehicleController extends Controller
 				'max:31'
 			],
 			'registrationDate' => ['required', 'date'],
-			'seatsCount' => ['required', 'numeric', 'min:1', 'max:15'],
+			'seatsCount' => ['required', 'numeric', 'min:1', 'max:30'],
 			'status' => ['required', Rule::enum(VehicleStatusEnum::class)],
 			'reason' => [
 				'required_if:status,' . VehicleStatusEnum::SUSPENDED->value . ',' . VehicleStatusEnum::UNDER_REPAIR->value,
@@ -559,7 +559,7 @@ class VehicleController extends Controller
 				'max:31'
 			],
 			'registrationDate' => ['required', 'date'],
-			'seatsCount' => ['required', 'numeric', 'integer', 'min:1', 'max:15'],
+			'seatsCount' => ['required', 'numeric', 'integer', 'min:1', 'max:30'],
 			'status' => ['required', Rule::enum(VehicleStatusEnum::class)],
 			'reason' => [
 				'required_if:status,' . VehicleStatusEnum::SUSPENDED->value . ',' . VehicleStatusEnum::UNDER_REPAIR->value,

@@ -63,7 +63,7 @@ class Vehicle extends Model
 					});
 			})
 			->whereIn('status', [
-				ReservationStatusEnum::PENDING->value,
+				// ReservationStatusEnum::PENDING->value,
 				ReservationStatusEnum::VALIDATED->value
 			])
 			->doesntExist();
