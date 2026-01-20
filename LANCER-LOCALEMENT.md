@@ -104,3 +104,7 @@ npm run dev
 - Vérifiez les identifiants / mots de passe temporaires dans le fichier [UserSeeder.php](backend/database/seeders/UserSeeder.php)
 - À la première connexion, vous devrez changer le mot de passe.
 
+### 6. Lancement de tâche de changement de statut des réservations
+Dans un autre terminal du dossier backend
+```
+php artisan reservations:update-expired
