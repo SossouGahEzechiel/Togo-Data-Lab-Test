@@ -16,6 +16,7 @@ export const useReservationStore = defineStore("ReservationStore", {
 			try {
 				const { data } = await useApi().get<Reservation[]>(ApiUrl.RESERVATIONS);
 				this.reservations = data;
+				this.errors = {};
 			} catch (error) {
 				this.errors = useValidationErrors(error);
 				throw error;
@@ -30,6 +31,7 @@ export const useReservationStore = defineStore("ReservationStore", {
 				const { data } = await useApi().get<Reservation>(
 					ApiUrl.parameterized(ApiUrl.RESERVATION_BY_ID, id),
 				);
+				this.errors = {};
 				return data;
 			} catch (error) {
 				this.errors = useValidationErrors(error);
@@ -47,6 +49,7 @@ export const useReservationStore = defineStore("ReservationStore", {
 					reservation,
 				);
 				this.reservations.push(data);
+				this.errors = {};
 				return data;
 			} catch (error) {
 				this.errors = useValidationErrors(error);
@@ -69,6 +72,7 @@ export const useReservationStore = defineStore("ReservationStore", {
 				if (index !== -1) {
 					this.reservations[index] = data;
 				}
+				this.errors = {};
 				return data;
 			} catch (error) {
 				this.errors = useValidationErrors(error);
@@ -85,6 +89,7 @@ export const useReservationStore = defineStore("ReservationStore", {
 					{ status },
 				);
 				this.reservations = this.reservations.map(_ => _.id === id ? data : _);
+				this.errors = {};
 			} catch (error) {
 				this.errors = useValidationErrors(error);
 				throw error;
@@ -96,6 +101,7 @@ export const useReservationStore = defineStore("ReservationStore", {
 			try {
 				await useApi().del(ApiUrl.parameterized(ApiUrl.RESERVATION_BY_ID, id));
 				this.reservations = this.reservations.filter((_) => _.id !== id);
+				this.errors = {};
 			} catch (error) {
 				this.errors = useValidationErrors(error);
 				throw error;

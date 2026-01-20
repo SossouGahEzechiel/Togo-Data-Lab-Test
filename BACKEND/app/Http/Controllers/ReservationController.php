@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ReservationStatusEnum;
+use App\Enums\UserRoleEnum;
 use App\Enums\VehicleStatusEnum;
 use App\Http\Resources\ReservationResource;
 use App\Models\Reservation;
@@ -23,10 +24,100 @@ class ReservationController extends Controller
 {
 	#[OA\Get(
 		path: "/reservations",
-		summary: "Lister toutes les réservations",
-		description: "Retourne la liste de toutes les réservations triées par date de début et fin",
+		summary: "Lister les réservations",
+		description: "Retourne la liste des réservations. Peut être filtrée par utilisateur, véhicule ou statut. Les administrateurs voient toutes les réservations, les utilisateurs normaux voient seulement les leurs.",
 		tags: ["Réservations"],
 		security: [["bearerAuth" => []]],
+		parameters: [
+			new OA\Parameter(
+				name: "userId",
+				in: "query",
+				required: false,
+				description: "UUID de l'utilisateur pour filtrer les réservations. Seuls les administrateurs/moderateurs peuvent filtrer par d'autres utilisateurs.",
+				schema: new OA\Schema(
+					type: "string",
+					format: "uuid",
+					example: "550e8400-e29b-41d4-a716-446655440002"
+				)
+			),
+			new OA\Parameter(
+				name: "vehicleId",
+				in: "query",
+				required: false,
+				description: "UUID du véhicule pour filtrer les réservations",
+				schema: new OA\Schema(
+					type: "string",
+					format: "uuid",
+					example: "550e8400-e29b-41d4-a716-446655440001"
+				)
+			),
+			new OA\Parameter(
+				name: "status",
+				in: "query",
+				required: false,
+				description: "Statut pour filtrer les réservations",
+				schema: new OA\Schema(
+					type: "string",
+					enum: ["pending", "validated", "rejected", "passed"],
+					example: "pending"
+				)
+			),
+			new OA\Parameter(
+				name: "fromDate",
+				in: "query",
+				required: false,
+				description: "Date de début minimum pour filtrer les réservations (format: YYYY-MM-DD)",
+				schema: new OA\Schema(
+					type: "string",
+					format: "date",
+					example: "2024-01-01"
+				)
+			),
+			new OA\Parameter(
+				name: "toDate",
+				in: "query",
+				required: false,
+				description: "Date de fin maximum pour filtrer les réservations (format: YYYY-MM-DD)",
+				schema: new OA\Schema(
+					type: "string",
+					format: "date",
+					example: "2024-12-31"
+				)
+			),
+			new OA\Parameter(
+				name: "missionId",
+				in: "query",
+				required: false,
+				description: "UUID de la mission pour filtrer les réservations",
+				schema: new OA\Schema(
+					type: "string",
+					format: "uuid",
+					example: "550e8400-e29b-41d4-a716-446655440000"
+				)
+			),
+			new OA\Parameter(
+				name: "sortBy",
+				in: "query",
+				required: false,
+				description: "Champ de tri: from, to",
+				schema: new OA\Schema(
+					type: "string",
+					enum: ["from", "to"],
+					example: "from"
+				)
+			),
+			new OA\Parameter(
+				name: "sortOrder",
+				in: "query",
+				required: false,
+				description: "Ordre de tri: asc, desc",
+				schema: new OA\Schema(
+					type: "string",
+					enum: ["asc", "desc"],
+					example: "asc"
+				)
+			)
+		],
 		responses: [
 			new OA\Response(
 				response: 200,
@@ -40,16 +131,67 @@ class ReservationController extends Controller
 				response: 401,
 				description: "Non authentifié",
 				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
+			),
+			new OA\Response(
+				response: 403,
+				description: "Non autorisé à voir les réservations d'autres utilisateurs",
+				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
 			)
 		]
 	)]
-	public function index(): AnonymousResourceCollection
+	public function index(Request $request): AnonymousResourceCollection|JsonResponse
 	{
-		$reservations = Reservation::query()
-			->orderBy('from')
-			->orderBy('to')
-			->get();
+		$user = $request->user();
 
+		$query = Reservation::query();
+
+		if ($request->has('userId')) {
+			$requestedUserId = $request->input('userId');
+
+			$query->where('user_id', $requestedUserId);
+		} else {
+			if ($user->role !== UserRoleEnum::ADMIN) {
+				$query->where('user_id', $user->id);
+			}
+		}
+
+		// Filtrage par vehicleId
+		if ($request->has('vehicleId')) {
+			$query->where('vehicle_id', $request->input('vehicleId'));
+		}
+
+		// Filtrage par missionId
+		if ($request->has('missionId')) {
+			$query->where('mission_id', $request->input('missionId'));
+		}
+
+		// Filtrage par statut
+		if ($request->has('status')) {
+			$status = $request->input('status');
+			if (in_array($status, ReservationStatusEnum::values())) {
+				$query->where('status', $status);
+			}
+		}
+
+		// Filtrage par période
+		if ($request->has('fromDate')) {
+			$query->whereDate('from', '>=', $request->input('fromDate'));
+		}
+
+		if ($request->has('toDate')) {
+			$query->whereDate('to', '<=', $request->input('toDate'));
+		}
+
+		$sortBy = $request->input('sortBy', 'from');
+		$sortOrder = $request->input('sortOrder', 'asc');
+
+		if (in_array($sortBy, ['from', 'to'])) {
+			$query->orderBy($sortBy, $sortOrder);
+		} else {
+			$query->orderBy('from')->orderBy('to');
+		}
+
+		$reservations = $query->get();
 		return ReservationResource::collection($reservations);
 	}
 

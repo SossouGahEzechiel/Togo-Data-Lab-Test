@@ -612,9 +612,120 @@
                 "tags": [
                     "Réservations"
                 ],
-                "summary": "Lister toutes les réservations",
-                "description": "Retourne la liste de toutes les réservations triées par date de début et fin",
+                "summary": "Lister les réservations",
+                "description": "Retourne la liste des réservations. Peut être filtrée par utilisateur, véhicule ou statut. Les administrateurs voient toutes les réservations, les utilisateurs normaux voient seulement les leurs.",
                 "operationId": "69fb15b9890a0559eb50e5e1777d9b64",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "query",
+                        "description": "UUID de l'utilisateur pour filtrer les réservations. Seuls les administrateurs/moderateurs peuvent filtrer par d'autres utilisateurs.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440002"
+                        }
+                    },
+                    {
+                        "name": "vehicleId",
+                        "in": "query",
+                        "description": "UUID du véhicule pour filtrer les réservations",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440001"
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Statut pour filtrer les réservations",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "pending",
+                                "validated",
+                                "rejected",
+                                "passed"
+                            ],
+                            "example": "pending"
+                        }
+                    },
+                    {
+                        "name": "fromDate",
+                        "in": "query",
+                        "description": "Date de début minimum pour filtrer les réservations (format: YYYY-MM-DD)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2024-01-01"
+                        }
+                    },
+                    {
+                        "name": "toDate",
+                        "in": "query",
+                        "description": "Date de fin maximum pour filtrer les réservations (format: YYYY-MM-DD)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2024-12-31"
+                        }
+                    },
+                    {
+                        "name": "missionId",
+                        "in": "query",
+                        "description": "UUID de la mission pour filtrer les réservations",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440000"
+                        }
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "description": "Relations à inclure (séparées par des virgules): mission,vehicle,driver,user",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "mission,vehicle,driver"
+                        }
+                    },
+                    {
+                        "name": "sortBy",
+                        "in": "query",
+                        "description": "Champ de tri: from, to, created_at, updated_at",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "from",
+                                "to"
+                            ],
+                            "example": "from"
+                        }
+                    },
+                    {
+                        "name": "sortOrder",
+                        "in": "query",
+                        "description": "Ordre de tri: asc, desc",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "asc",
+                                "desc"
+                            ],
+                            "example": "asc"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Liste des réservations récupérée avec succès",
@@ -631,6 +742,16 @@
                     },
                     "401": {
                         "description": "Non authentifié",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Non autorisé à voir les réservations d'autres utilisateurs",
                         "content": {
                             "application/json": {
                                 "schema": {
