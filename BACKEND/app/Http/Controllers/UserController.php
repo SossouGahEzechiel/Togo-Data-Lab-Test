@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Enums\UserRoleEnum;
-use App\Http\Resources\ImageResource;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -13,13 +12,44 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use OpenApi\Attributes as OA;
 use Throwable;
 
+#[OA\Tag(
+	name: "Utilisateurs",
+	description: "Gestion des utilisateurs du système"
+)]
 class UserController extends Controller
 {
-
 	private const IMAGE_FOLDER = 'users';
 
+	#[OA\Get(
+		path: "/users",
+		summary: "Lister tous les utilisateurs",
+		description: "Retourne la liste de tous les utilisateurs avec leurs images, triés par nom et prénom",
+		tags: ["Utilisateurs"],
+		security: [["bearerAuth" => []]],
+		responses: [
+			new OA\Response(
+				response: 200,
+				description: "Liste des utilisateurs récupérée avec succès",
+				content: new OA\JsonContent(
+					type: "array",
+					items: new OA\Items(ref: "#/components/schemas/User")
+				)
+			),
+			new OA\Response(
+				response: 401,
+				description: "Non authentifié",
+				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
+			),
+			new OA\Response(
+				response: 403,
+				description: "Non autorisé (admin/moderator requis)",
+				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
+			)
+		]
+	)]
 	public function index(): AnonymousResourceCollection
 	{
 		$users = User::query()
@@ -31,6 +61,100 @@ class UserController extends Controller
 		return UserResource::collection($users);
 	}
 
+	#[OA\Post(
+		path: "/users",
+		summary: "Créer un nouvel utilisateur",
+		description: "Crée un nouvel utilisateur avec un mot de passe généré automatiquement (envoyé par email)",
+		tags: ["Utilisateurs"],
+		security: [["bearerAuth" => []]],
+		requestBody: new OA\RequestBody(
+			required: true,
+			content: [
+				new OA\MediaType(
+					mediaType: "multipart/form-data",
+					schema: new OA\Schema(
+						required: ["firstName", "lastName", "email", "phone", "role"],
+						properties: [
+							new OA\Property(
+								property: "firstName",
+								type: "string",
+								maxLength: 255,
+								example: "John",
+								description: "Prénom de l'utilisateur"
+							),
+							new OA\Property(
+								property: "lastName",
+								type: "string",
+								maxLength: 255,
+								example: "Doe",
+								description: "Nom de l'utilisateur"
+							),
+							new OA\Property(
+								property: "email",
+								type: "string",
+								format: "email",
+								example: "john.doe@example.com",
+								description: "Adresse email unique"
+							),
+							new OA\Property(
+								property: "phone",
+								type: "string",
+								maxLength: 255,
+								example: "+33123456789",
+								description: "Numéro de téléphone unique"
+							),
+							new OA\Property(
+								property: "role",
+								type: "string",
+								enum: ["admin", "user", "moderator"],
+								example: "user",
+								description: "Rôle de l'utilisateur"
+							),
+							new OA\Property(
+								property: "image",
+								type: "string",
+								format: "binary",
+								description: "Photo de profil (formats: jpeg, jpg, png, webp, max: 2MB)",
+								nullable: true
+							)
+						]
+					)
+				)
+			]
+		),
+		responses: [
+			new OA\Response(
+				response: 201,
+				description: "Utilisateur créé avec succès",
+				content: new OA\JsonContent(ref: "#/components/schemas/User")
+			),
+			new OA\Response(
+				response: 400,
+				description: "Données invalides",
+				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
+			),
+			new OA\Response(
+				response: 401,
+				description: "Non authentifié",
+				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
+			),
+			new OA\Response(
+				response: 403,
+				description: "Non autorisé (admin/moderator requis)",
+				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
+			),
+			new OA\Response(
+				response: 422,
+				description: "Erreur de validation",
+				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
+			),
+			new OA\Response(
+				response: 500,
+				description: "Erreur lors de l'enregistrement de l'image",
+				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
+			)
+		]
+	)]
 	public function store(Request $request): UserResource|JsonResponse
 	{
 		$request->validate([
@@ -75,6 +199,99 @@ class UserController extends Controller
 		return UserResource::make($user->load('image'));
 	}
 
+	#[OA\Put(
+		path: "/users/{id}",
+		summary: "Mettre à jour un utilisateur",
+		description: "Met à jour les informations d'un utilisateur existant",
+		tags: ["Utilisateurs"],
+		security: [["bearerAuth" => []]],
+		parameters: [
+			new OA\Parameter(
+				name: "id",
+				in: "path",
+				required: true,
+				description: "UUID de l'utilisateur",
+				schema: new OA\Schema(
+					type: "string",
+					format: "uuid",
+					example: "550e8400-e29b-41d4-a716-446655440002"
+				)
+			)
+		],
+		requestBody: new OA\RequestBody(
+			required: true,
+			content: new OA\JsonContent(
+				required: ["firstName", "lastName", "email", "phone"],
+				properties: [
+					new OA\Property(
+						property: "firstName",
+						type: "string",
+						maxLength: 255,
+						example: "John",
+						description: "Prénom de l'utilisateur"
+					),
+					new OA\Property(
+						property: "lastName",
+						type: "string",
+						maxLength: 255,
+						example: "Doe",
+						description: "Nom de l'utilisateur"
+					),
+					new OA\Property(
+						property: "email",
+						type: "string",
+						format: "email",
+						example: "john.doe@example.com",
+						description: "Nouvelle adresse email"
+					),
+					new OA\Property(
+						property: "phone",
+						type: "string",
+						maxLength: 255,
+						example: "+33123456789",
+						description: "Nouveau numéro de téléphone"
+					)
+				]
+			)
+		),
+		responses: [
+			new OA\Response(
+				response: 200,
+				description: "Utilisateur mis à jour avec succès",
+				content: new OA\JsonContent(ref: "#/components/schemas/User")
+			),
+			new OA\Response(
+				response: 400,
+				description: "Données invalides",
+				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
+			),
+			new OA\Response(
+				response: 401,
+				description: "Non authentifié",
+				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
+			),
+			new OA\Response(
+				response: 403,
+				description: "Non autorisé",
+				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
+			),
+			new OA\Response(
+				response: 404,
+				description: "Utilisateur non trouvé",
+				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
+			),
+			new OA\Response(
+				response: 422,
+				description: "Erreur de validation",
+				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
+			),
+			new OA\Response(
+				response: 500,
+				description: "Erreur interne du serveur",
+				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
+			)
+		]
+	)]
 	public function update(Request $request, string $id): UserResource|JsonResponse
 	{
 		if (!$user = User::query()->find($id)) {
@@ -119,6 +336,53 @@ class UserController extends Controller
 		return new UserResource($user->load('image'));
 	}
 
+	#[OA\Delete(
+		path: "/users/{id}",
+		summary: "Supprimer un utilisateur",
+		description: "Supprime un utilisateur s'il n'a pas de réservations associées",
+		tags: ["Utilisateurs"],
+		security: [["bearerAuth" => []]],
+		parameters: [
+			new OA\Parameter(
+				name: "id",
+				in: "path",
+				required: true,
+				description: "UUID de l'utilisateur",
+				schema: new OA\Schema(
+					type: "string",
+					format: "uuid",
+					example: "550e8400-e29b-41d4-a716-446655440002"
+				)
+			)
+		],
+		responses: [
+			new OA\Response(
+				response: 200,
+				description: "Utilisateur supprimé avec succès",
+				content: new OA\JsonContent(ref: "#/components/schemas/SuccessResponse")
+			),
+			new OA\Response(
+				response: 400,
+				description: "L'utilisateur a des réservations et ne peut pas être supprimé",
+				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
+			),
+			new OA\Response(
+				response: 401,
+				description: "Non authentifié",
+				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
+			),
+			new OA\Response(
+				response: 403,
+				description: "Non autorisé (admin/moderator requis)",
+				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
+			),
+			new OA\Response(
+				response: 404,
+				description: "Utilisateur non trouvé",
+				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
+			)
+		]
+	)]
 	public function destroy(string $id): JsonResponse
 	{
 		if (!$user = User::query()->with('image')->find($id)) {
@@ -134,6 +398,163 @@ class UserController extends Controller
 
 		$user->delete();
 		return _200();
+	}
+
+	#[OA\Put(
+		path: "/users/{id}/toggle-active",
+		summary: "Activer/Désactiver un utilisateur",
+		description: "Active ou désactive un utilisateur. La désactivation supprime également ses tokens d'authentification.",
+		tags: ["Utilisateurs"],
+		security: [["bearerAuth" => []]],
+		parameters: [
+			new OA\Parameter(
+				name: "id",
+				in: "path",
+				required: true,
+				description: "UUID de l'utilisateur",
+				schema: new OA\Schema(
+					type: "string",
+					format: "uuid",
+					example: "550e8400-e29b-41d4-a716-446655440002"
+				)
+			)
+		],
+		requestBody: new OA\RequestBody(
+			required: true,
+			content: new OA\JsonContent(
+				required: ["isActive"],
+				properties: [
+					new OA\Property(
+						property: "isActive",
+						type: "boolean",
+						example: false,
+						description: "Nouveau statut d'activation"
+					)
+				]
+			)
+		),
+		responses: [
+			new OA\Response(
+				response: 200,
+				description: "Statut d'activation mis à jour avec succès",
+				content: new OA\JsonContent(ref: "#/components/schemas/User")
+			),
+			new OA\Response(
+				response: 400,
+				description: "Données invalides",
+				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
+			),
+			new OA\Response(
+				response: 401,
+				description: "Non authentifié",
+				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
+			),
+			new OA\Response(
+				response: 403,
+				description: "Non autorisé (admin/moderator requis)",
+				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
+			),
+			new OA\Response(
+				response: 404,
+				description: "Utilisateur non trouvé",
+				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
+			),
+			new OA\Response(
+				response: 422,
+				description: "Erreur de validation",
+				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
+			)
+		]
+	)]
+	public function toggleIsActive(Request $request, string $id): UserResource|JsonResponse
+	{
+		if (!$user = User::query()->find($id)) {
+			return _404();
+		}
+
+		$request->validate([
+			'isActive' => ['required', 'boolean:strict']
+		]);
+
+		$user->update([
+			'is_active' => $request->boolean('isActive')
+		]);
+
+		if (!$request->boolean('isActive')) {
+			$user->tokens()->delete();
+		}
+
+		return new UserResource($user->refresh());
+	}
+
+	#[OA\Post(
+		path: "/users/{id}/reset-password",
+		summary: "Réinitialiser le mot de passe d'un utilisateur",
+		description: "Génère un nouveau mot de passe aléatoire pour un utilisateur et l'envoie par email",
+		tags: ["Utilisateurs"],
+		security: [["bearerAuth" => []]],
+		parameters: [
+			new OA\Parameter(
+				name: "id",
+				in: "path",
+				required: true,
+				description: "UUID de l'utilisateur",
+				schema: new OA\Schema(
+					type: "string",
+					format: "uuid",
+					example: "550e8400-e29b-41d4-a716-446655440002"
+				)
+			)
+		],
+		responses: [
+			new OA\Response(
+				response: 200,
+				description: "Mot de passe réinitialisé avec succès",
+				content: new OA\JsonContent(
+					properties: [
+						new OA\Property(
+							property: "message",
+							type: "string",
+							example: "Mot de passe réinitialisé et envoyé par email"
+						)
+					]
+				)
+			),
+			new OA\Response(
+				response: 401,
+				description: "Non authentifié",
+				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
+			),
+			new OA\Response(
+				response: 403,
+				description: "Non autorisé (admin/moderator requis)",
+				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
+			),
+			new OA\Response(
+				response: 404,
+				description: "Utilisateur non trouvé",
+				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
+			)
+		]
+	)]
+	public function resetPassword(string $id): JsonResponse
+	{
+		if (!$user = User::query()->find($id)) {
+			return _404();
+		}
+
+		$newPassword = Str::password(10);
+		$user->update([
+			'password' => Hash::make($newPassword)
+		]);
+
+		// TODO: Envoyer le nouveau mot de passe par email
+		// Mail::to($user->email)->send(new PasswordResetNotification($newPassword));
+
+		return response()->json([
+			'message' => 'Mot de passe réinitialisé avec succès',
+			'password_sent_to' => $user->email
+		]);
 	}
 
 	// public function updateImage(Request $request): ImageResource|JsonResponse

@@ -19,7 +19,7 @@ class UserSeeder extends Seeder
 				'role'      => UserRoleEnum::ADMIN,
 				'phone'     => '+22890011223',
 				'password'  => Hash::make('password123'),
-				'is_active' => false
+				'is_active' => true
 			],
 			[
 				'first_name' => 'Afi',

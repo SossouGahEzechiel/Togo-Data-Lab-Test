@@ -16,7 +16,7 @@
 			:hasActiveFilters="hasActiveFilters" :getVehicleLabel="getVehicleLabel" :clearFilters="clearFilters" />
 
 		<!-- Statistiques -->
-		<ReservationStatCard :reservationsCount="reservations.length" :pendingCount="pendingCount"
+		<ReservationStats :reservationsCount="reservations.length" :pendingCount="pendingCount"
 			:validatedCount="validatedCount" :rejectedCount="rejectedCount" />
 
 		<!-- Liste des réservations -->
@@ -71,8 +71,8 @@ import { ReservationStatusEnum, reservationStatuses } from '~/types/ReservationE
 import ReservationListView from '~/components/reservations/ReservationListView.vue'
 import ReservationCardView from '~/components/reservations/ReservationCardView.vue'
 import ReservationPagination from '~/components/reservations/ReservationPagination.vue'
-import ReservationStatCard from '~/components/reservations/ReservationStatCard.vue'
 import ReservationFilters from '~/components/reservations/ReservationFilters.vue'
+import ReservationStats from './ReservationStats.vue'
 
 const props = defineProps<{
 	isManageMode: boolean
