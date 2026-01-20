@@ -6,6 +6,7 @@ use App\Enums\ReservationStatusEnum;
 use App\Enums\VehicleStatusEnum;
 use App\Http\Resources\ReservationResource;
 use App\Models\Reservation;
+use App\Models\Vehicle;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -129,8 +130,8 @@ class ReservationController extends Controller
 	public function store(Request $request): ReservationResource|JsonResponse
 	{
 		$request->validate([
-			'from' => ['required', 'date'],
-			'to' => ['nullable', 'date'],
+			'from' => ['required', 'date', 'after_or_equal:today'],
+			'to' => ['nullable', 'date', 'after_or_equal:from'],
 			'missionId' => ['required', 'exists:missions,id'],
 			'vehicleId' => ['required', 'exists:vehicles,id'],
 			'driverId' => ['nullable', 'exists:users,id'],
@@ -478,6 +479,7 @@ class ReservationController extends Controller
 	)]
 	public function assignDriver(Request $request, string $id): ReservationResource|JsonResponse
 	{
+		// TODO: A retirer
 		if (!$reservation = Reservation::query()->find($id)) {
 			return _404();
 		}
@@ -720,6 +722,9 @@ class ReservationController extends Controller
 			],
 		]);
 
+		/**
+		 * @var Vehicle $vehicle
+		 */
 		$vehicle = $reservation->vehicle;
 		$isValidated = $request->enum('status', ReservationStatusEnum::class) === ReservationStatusEnum::VALIDATED;
 
@@ -727,7 +732,7 @@ class ReservationController extends Controller
 			return _403("Le véhicule associé à la réservation n'est pas disponible.");
 		}
 
-		if ($isValidated && !$vehicle->isAvailable($reservation->from)) {
+		if ($isValidated && !$vehicle->isAvailable($reservation->from, null)) {
 			return _403("Le véhicule associé à la réservation n'est pas disponible.");
 		}
 

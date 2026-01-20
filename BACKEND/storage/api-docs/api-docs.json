@@ -1601,6 +1601,101 @@
                 ]
             }
         },
+        "/vehicles/{id}/check-availability": {
+            "get": {
+                "tags": [
+                    "Véhicules"
+                ],
+                "summary": "Vérifier la disponibilité d'un véhicule",
+                "description": "Vérifie si un véhicule spécifique est disponible pour réservation pendant une période donnée. Retourne un booléen indiquant la disponibilité.",
+                "operationId": "ff556ff2f77943bd5df0de62bce8e115",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "UUID du véhicule",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440001"
+                        }
+                    },
+                    {
+                        "name": "from",
+                        "in": "query",
+                        "description": "Date de début de la période (format: YYYY-MM-DD). Doit être aujourd'hui ou dans le futur.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2024-01-15"
+                        }
+                    },
+                    {
+                        "name": "to",
+                        "in": "query",
+                        "description": "Date de fin de la période (format: YYYY-MM-DD). Si non fourni, seule la date de début est vérifiée. Doit être après ou égale à la date de début.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2024-01-20"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Disponibilité vérifiée avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "description": "Booléen indiquant la disponibilité (true = disponible, false = non disponible)",
+                                            "type": "string",
+                                            "example": "true"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Paramètres invalides",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The from field must be a date after or equal to today."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Véhicule non trouvé",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/vehicles/{id}": {
             "get": {
                 "tags": [
@@ -2139,6 +2234,10 @@
                     "lastName": {
                         "type": "string",
                         "example": "Doe"
+                    },
+                    "fullName": {
+                        "type": "string",
+                        "example": "John Doe"
                     },
                     "email": {
                         "type": "string",

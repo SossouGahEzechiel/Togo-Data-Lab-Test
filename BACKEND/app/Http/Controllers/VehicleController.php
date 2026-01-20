@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\{ReservationStatusEnum, VehicleStatusEnum, VehicleTypeEnum};
+use App\Http\Resources\ReservationResource;
 use App\Http\Resources\VehicleResource;
 use App\Models\Image;
 use App\Models\Vehicle;
@@ -121,6 +122,103 @@ class VehicleController extends Controller
 
 		$vehicles = $query->get();
 		return VehicleResource::collection($vehicles);
+	}
+
+	#[OA\Get(
+		path: "/vehicles/{id}/check-availability",
+		summary: "Vérifier la disponibilité d'un véhicule",
+		description: "Vérifie si un véhicule spécifique est disponible pour réservation pendant une période donnée. Retourne un booléen indiquant la disponibilité.",
+		tags: ["Véhicules"],
+		security: [["bearerAuth" => []]],
+		parameters: [
+			new OA\Parameter(
+				name: "id",
+				in: "path",
+				required: true,
+				description: "UUID du véhicule",
+				schema: new OA\Schema(
+					type: "string",
+					format: "uuid",
+					example: "550e8400-e29b-41d4-a716-446655440001"
+				)
+			),
+			new OA\Parameter(
+				name: "from",
+				in: "query",
+				required: true,
+				description: "Date de début de la période (format: YYYY-MM-DD). Doit être aujourd'hui ou dans le futur.",
+				schema: new OA\Schema(
+					type: "string",
+					format: "date",
+					example: "2024-01-15"
+				)
+			),
+			new OA\Parameter(
+				name: "to",
+				in: "query",
+				required: false,
+				description: "Date de fin de la période (format: YYYY-MM-DD). Si non fourni, seule la date de début est vérifiée. Doit être après ou égale à la date de début.",
+				schema: new OA\Schema(
+					type: "string",
+					format: "date",
+					example: "2024-01-20"
+				)
+			)
+		],
+		responses: [
+			new OA\Response(
+				response: 200,
+				description: "Disponibilité vérifiée avec succès",
+				content: new OA\JsonContent(
+					properties: [
+						new OA\Property(
+							property: "message",
+							type: "string",
+							example: "true",
+							description: "Booléen indiquant la disponibilité (true = disponible, false = non disponible)"
+						)
+					]
+				)
+			),
+			new OA\Response(
+				response: 400,
+				description: "Paramètres invalides",
+				content: new OA\JsonContent(
+					properties: [
+						new OA\Property(
+							property: "message",
+							type: "string",
+							example: "The from field must be a date after or equal to today."
+						)
+					]
+				)
+			),
+			new OA\Response(
+				response: 404,
+				description: "Véhicule non trouvé",
+				content: new OA\JsonContent(ref: "#/components/schemas/ErrorResponse")
+			)
+		]
+	)]
+	public function checkAvailability(Request $request, string $id): JsonResponse
+	{
+		$request->validate([
+			'from' => ['required', 'date', 'after_or_equal:today'],
+			'to' => ['nullable', 'date', 'after_or_equal:from']
+		], [], [
+			'from' => "La date de début",
+			'to' => "La date de fin"
+		]);
+
+		if (!$vehicle = Vehicle::query()->find($id)) {
+			return _404();
+		}
+
+		$from = $request->date('from');
+		$to = $request->date('to') ?? $from;
+
+		$isAvailable = $vehicle->isAvailable($from, $to);
+		return response()->json(['data' => $isAvailable]);
 	}
 
 	#[OA\Post(

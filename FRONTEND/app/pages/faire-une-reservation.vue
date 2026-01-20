@@ -18,18 +18,11 @@
 						class="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:border-dark-600 dark:bg-dark-700 dark:text-gray-300 dark:hover:bg-dark-600">
 						Annuler
 					</button>
-					<button @click="save" type="button" :disabled="isPersisting" :class="[
+					<button @click="save" type="button" :disabled="isPersisting || availabilityStatus === 'conflict'" :class="[
 						'btn-primary inline-flex items-center',
 						isPersisting ? 'opacity-50 cursor-not-allowed' : ''
 					]">
-						<svg v-if="isPersisting" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-							xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-							<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
-							</circle>
-							<path class="opacity-75" fill="currentColor"
-								d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-							</path>
-						</svg>
+						<Spinner :isLoading="isPersisting" />
 						{{ isPersisting ? 'Enregistrement...' : (mode === 'create' ? 'Créer la réservation' : 'Mettre à jour') }}
 					</button>
 				</div>
@@ -54,15 +47,13 @@
 									Mission *
 								</label>
 								<select id="missionId" v-model="form.missionId" required class="input-field"
-									:class="{ 'border-red-500': validationErrors.missionId }">
+									:class="{ 'border-red-500': errors.missionId }">
 									<option value="">Sélectionnez une mission</option>
 									<option v-for="mission in missions" :key="mission.id" :value="mission.id">
 										{{ mission.label }}
 									</option>
 								</select>
-								<p v-if="validationErrors.missionId" class="mt-1 text-sm text-red-600 dark:text-red-400">
-									{{ validationErrors.missionId }}
-								</p>
+								<InvalidField :message="errors.missionId"/>
 							</div>
 
 							<!-- Véhicule -->
@@ -71,15 +62,13 @@
 									Véhicule *
 								</label>
 								<select id="vehicleId" v-model="form.vehicleId" required class="input-field"
-									:class="{ 'border-red-500': validationErrors.vehicleId }">
+									:class="{ 'border-red-500': errors.vehicleId }">
 									<option value="">Sélectionnez un véhicule</option>
 									<option v-for="vehicle in availableVehicles" :key="vehicle.id" :value="vehicle.id">
 										{{ vehicle.brand }} {{ vehicle.model }} ({{ vehicle.registrationNumber }})
 									</option>
 								</select>
-								<p v-if="validationErrors.vehicleId" class="mt-1 text-sm text-red-600 dark:text-red-400">
-									{{ validationErrors.vehicleId }}
-								</p>
+								<InvalidField :message="errors.vehicleId"/>
 							</div>
 
 							<!-- Conducteur -->
@@ -88,15 +77,13 @@
 									Conducteur *
 								</label>
 								<select id="driverId" v-model="form.driverId" required class="input-field"
-									:class="{ 'border-red-500': validationErrors.driverId }">
+									:class="{ 'border-red-500': errors.driverId }">
 									<option value="">Sélectionnez un conducteur</option>
 									<option v-for="driver in drivers" :key="driver.id" :value="driver.id">
 										{{ driver.fullName }}
 									</option>
 								</select>
-								<p v-if="validationErrors.driverId" class="mt-1 text-sm text-red-600 dark:text-red-400">
-									{{ validationErrors.driverId }}
-								</p>
+								<InvalidField :message="errors.driverId"/>
 							</div>
 
 							<!-- Date de début -->
@@ -105,10 +92,8 @@
 									Date de début *
 								</label>
 								<input id="from" v-model="form.from" type="date" required class="input-field"
-									:class="{ 'border-red-500': validationErrors.from }" />
-								<p v-if="validationErrors.from" class="mt-1 text-sm text-red-600 dark:text-red-400">
-									{{ validationErrors.from }}
-								</p>
+									:class="{ 'border-red-500': errors.from }" />
+								<InvalidField :message="errors.from"/>
 							</div>
 
 							<!-- Date de fin -->
@@ -117,10 +102,8 @@
 									Date de fin *
 								</label>
 								<input id="to" v-model="form.to" type="date" required class="input-field"
-									:class="{ 'border-red-500': validationErrors.to }" />
-								<p v-if="validationErrors.to" class="mt-1 text-sm text-red-600 dark:text-red-400">
-									{{ validationErrors.to }}
-								</p>
+									:class="{ 'border-red-500': errors.to }" />
+								<InvalidField :message="errors.to"/>
 							</div>
 
 							<!-- Date de retour (optionnel) -->
@@ -129,9 +112,9 @@
 									Date de retour (optionnel)
 								</label>
 								<input id="returnDate" v-model="form.returnDate" type="date" class="input-field"
-									:class="{ 'border-red-500': validationErrors.returnDate }" />
-								<p v-if="validationErrors.returnDate" class="mt-1 text-sm text-red-600 dark:text-red-400">
-									{{ validationErrors.returnDate }}
+									:class="{ 'border-red-500': errors.returnDate }" />
+								<p v-if="errors.returnDate" class="mt-1 text-sm text-red-600 dark:text-red-400">
+									{{ errors.returnDate }}
 								</p>
 								<p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
 									À remplir uniquement si le véhicule est déjà retourné
@@ -204,7 +187,7 @@
 					</div>
 
 					<!-- Messages d'erreur généraux -->
-					<div v-if="validationErrors._general" class="rounded-md bg-red-50 dark:bg-red-900/20 p-4">
+					<div v-if="errors._general" class="rounded-md bg-red-50 dark:bg-red-900/20 p-4">
 						<div class="flex">
 							<ExclamationCircleIcon class="h-5 w-5 text-red-400" />
 							<div class="ml-3">
@@ -212,7 +195,7 @@
 									Erreur de validation
 								</h3>
 								<div class="mt-2 text-sm text-red-700 dark:text-red-300">
-									<p>{{ validationErrors._general }}</p>
+									<p>{{ errors._general }}</p>
 								</div>
 							</div>
 						</div>
@@ -363,6 +346,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { UserRoleEnum } from '~/types/UserRoleEnum'
 import { VehicleStatusEnum } from '~/types/VehicleEnums'
 import { AppUrl } from '../composables/appUrl'
+import InvalidField from '~/components/partials/InvalidField.vue'
+import Spinner from '~/components/partials/spinner.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -376,8 +361,7 @@ const userStore = useUserStore()
 const mode = computed(() => route.params.mode === 'edit' ? 'edit' : 'create')
 const reservationId = computed(() => route.params.id as string)
 
-const isPersisting = computed(() => reservationStore.isPersisting)
-const validationErrors = computed(() => reservationStore.errors)
+const { isPersisting } = storeToRefs(reservationStore);
 const availabilityStatus = ref<'idle' | 'loading' | 'available' | 'conflict'>('idle')
 
 // Données du formulaire
@@ -395,6 +379,12 @@ const form = reactive({
 const missions = computed(() => missionStore.missions || [])
 const vehicles = computed(() => vehicleStore.vehicles || [])
 const users = computed(() => userStore.users || [])
+const errors = computed(() => {
+	return {
+		...reservationStore.errors,
+		...vehicleStore.errors
+	}
+})
 
 // Filtrer les conducteurs
 const drivers = computed(() => {
@@ -406,7 +396,7 @@ const drivers = computed(() => {
 // Filtrer les véhicules disponibles
 const availableVehicles = computed(() => {
 	return vehicles.value.filter(vehicle =>
-		vehicle.status === VehicleStatusEnum.AVAILABLE
+		vehicle.status !== VehicleStatusEnum.SUSPENDED && vehicle.status !== VehicleStatusEnum.UNDER_REPAIR
 	)
 })
 
@@ -488,12 +478,7 @@ const checkAvailability = async () => {
 	availabilityStatus.value = 'loading'
 
 	try {
-		// Simuler une vérification d'API
-		await new Promise(resolve => setTimeout(resolve, 1000))
-
-		// Ici, vous implémenteriez l'appel API réel
-		// Pour l'instant, simulons une réponse
-		const isAvailable = Math.random() > 0.3
+		const isAvailable = await vehicleStore.checkAvailability(form.vehicleId, form.from, form.to);
 		availabilityStatus.value = isAvailable ? 'available' : 'conflict'
 	} catch (error) {
 		console.error('Erreur lors de la vérification de disponibilité:', error)

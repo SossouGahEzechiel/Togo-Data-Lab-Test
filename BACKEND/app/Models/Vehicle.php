@@ -48,11 +48,24 @@ class Vehicle extends Model
 		return $this->morphMany(Image::class, "imageable");
 	}
 
-	public function isAvailable(Carbon $from): bool
+	public function isAvailable(Carbon $from, ?Carbon $to = null): bool
 	{
+		$to = $to ?? $from;
+
 		return $this->reservations()
-			->where('status', ReservationStatusEnum::VALIDATED)
-			->whereDate('to', '>=', $from)
+			->whereNotIn('status', [ReservationStatusEnum::PASSED->value])
+			->where(function (Builder $query) use ($from, $to) {
+				$query->whereBetween('from', [$from, $to])
+					->orWhereBetween('to', [$from, $to])
+					->orWhere(function (Builder $q) use ($from, $to) {
+						$q->where('from', '<=', $from)
+							->where('to', '>=', $to);
+					});
+			})
+			->whereIn('status', [
+				ReservationStatusEnum::PENDING->value,
+				ReservationStatusEnum::VALIDATED->value
+			])
 			->doesntExist();
 	}
 

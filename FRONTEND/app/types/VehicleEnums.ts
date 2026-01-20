@@ -1,7 +1,7 @@
 // Statut du véhicule
 export enum VehicleStatusEnum {
 	AVAILABLE = "Disponible",
-	UNAVAILABLE = "Indisponible",
+	// UNAVAILABLE = "Indisponible",
 	UNDER_REPAIR = "En réparation",
 	RESERVED = "Réservé",
 	SUSPENDED = "Suspendu",

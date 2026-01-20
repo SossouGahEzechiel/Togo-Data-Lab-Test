@@ -4,17 +4,13 @@
 		<div class="mb-6">
 			<div class="flex items-center justify-between">
 				<div>
-					<h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
+					<h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
 						Gestion des réservations
 					</h1>
 					<p class="text-gray-600 dark:text-gray-400 mt-1">
 						Gestion et suivi des réservations de véhicules
 					</p>
 				</div>
-				<button @click="openCreateModal" class="btn-primary flex items-center gap-2 whitespace-nowrap">
-					<PlusIcon class="w-5 h-5" />
-					Nouvelle réservation
-				</button>
 			</div>
 			<div class="mt-4 flex items-center justify-between">
 				<div class="text-sm text-gray-500 dark:text-gray-400">
@@ -531,10 +527,6 @@ const openEditModal = (reservation: Reservation) => {
 	selectedReservation.value = { ...reservation }
 	modalMode.value = 'edit'
 	isModalOpen.value = true
-}
-
-const openViewModal = (reservation: Reservation) => {
-	navigateTo(`/reservations/${reservation.id}`)
 }
 
 const closeModal = () => {

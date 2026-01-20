@@ -38,6 +38,22 @@ export const useVehicleStore = defineStore("VehicleStore", {
 			}
 		},
 
+		async checkAvailability(id: string, from: string, to: string) {
+			this.isLoading = true;
+			try {
+				const { data } = await useApi().post<boolean>(
+					ApiUrl.parameterized(ApiUrl.VEHICLE_CHECK_AVAILABILITY, id),
+					{ from, to },
+				);
+				return data;
+			} catch (error) {
+				this.errors = useValidationErrors(error);
+				throw error;
+			} finally {
+				this.isLoading = false;
+			}
+		},
+
 		async store(vehicle: Vehicle) {
 			this.isPersisting = true;
 			try {

@@ -9,6 +9,7 @@ export const ApiUrl = {
 
 	VEHICLES: "/vehicles",
 	VEHICLE_BY_ID: "/vehicles/:id",
+	VEHICLE_CHECK_AVAILABILITY: "/vehicles/:id/check-availability",
 
 	MISSIONS: "/missions",
 	MISSION_BY_ID: "/missions/:id",
