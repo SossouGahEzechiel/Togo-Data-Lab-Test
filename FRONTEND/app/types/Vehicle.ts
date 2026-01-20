@@ -1,4 +1,5 @@
 import type { Image } from "./Image";
+import type { Reservation } from "./Reservation";
 import { VehicleStatusEnum, VehicleTypeEnum } from "./VehicleEnums";
 
 export interface Vehicle {
@@ -12,7 +13,7 @@ export interface Vehicle {
 	status: VehicleStatusEnum;
 	reason: string | null;
 	images: Image[] | File[];
-	// reservations: Resev[]
+	reservations: Reservation[];
 }
 
 // Fonction helper pour créer un véhicule vide
@@ -26,5 +27,6 @@ export const initVehicleForm = (vehicle?: Vehicle): Vehicle => ({
 	seatsCount: vehicle?.seatsCount || 1,
 	status: vehicle?.status || VehicleStatusEnum.AVAILABLE,
 	reason: vehicle?.reason || null,
+	reservations: vehicle?.reservations || [],
 	images: vehicle?.images || [],
 });
