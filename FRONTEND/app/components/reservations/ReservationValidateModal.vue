@@ -30,11 +30,17 @@
 									</p>
 									<div class="mt-4 bg-gray-50 dark:bg-dark-700 rounded-lg p-3 text-sm">
 										<p class="text-gray-700 dark:text-gray-300">
-											<span class="font-medium">Véhicule:</span> {{ reservation?.vehicle?.brand }} {{
+											<span class="font-bold">Véhicule:</span> {{ reservation?.vehicle?.brand }} {{
 												reservation?.vehicle?.model }}
 										</p>
+										<p class="text-gray-700 dark:text-gray-300">
+											<span class="font-bold">Auteur de la réservation:</span> {{ reservation?.user.fullName }}
+										</p>
+										<p class="text-gray-700 dark:text-gray-300">
+											<span class="font-bold">Mission:</span> {{ reservation?.mission.label }}
+										</p>
 										<p class="text-gray-700 dark:text-gray-300 mt-1">
-											<span class="font-medium">Période:</span> {{ formatDate(reservation?.from) }} → {{
+											<span class="font-bold">Période:</span> {{ formatDate(reservation?.from) }} → {{
 												formatDate(reservation?.to) }}
 										</p>
 									</div>

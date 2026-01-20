@@ -1,11 +1,13 @@
 import type { Image } from "./Image";
+import type { UserRoleEnum } from "./UserRoleEnum";
 
 export interface User {
 	id: string;
 	firstName: string;
 	lastName: string;
+	fullName: string;
 	email: string;
-	role: string;
+	role: UserRoleEnum;
 	phone: string;
 	isActive: boolean;
 	hasConfiguredPassword: boolean;
@@ -25,10 +27,10 @@ export interface ConfigurePasswordCredential {
 
 export const initLoginCredential = (): LoginCredential => ({
 	email: "",
-	password: ""
+	password: "",
 });
 
 export const initPasswordConfiguration = (): ConfigurePasswordCredential => ({
 	password: "",
-	password_confirmation: ""
+	password_confirmation: "",
 });

@@ -38,6 +38,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 		Route::prefix('{reservation}')->group(function () {
 			Route::patch('assign-driver', 'assignDriver');
 			Route::patch('mark-as-back', 'markAsPassed');
+			Route::patch('apply-decision', 'applyDecision');
 		});
 	});
 });

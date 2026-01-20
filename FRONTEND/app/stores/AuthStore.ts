@@ -73,12 +73,17 @@ export const useAuthStore = defineStore("AuthStore", {
 			this.user = null;
 			this.token = null;
 		},
+
+		cleanOtherStorages() {
+			useMissionStore().cleanStorage();
+			useReservationStore().cleanStorage();
+			useUserStore().cleanStorage();
+			useVehicleStore().cleanStorage();
+		}
 	},
 	persist: {
 		storage: secureLsStorage,
-		// Optionnel : personnaliser la clé de stockage
 		key: "auth-store",
-		// Optionnel : choisir quelles propriétés persister
 		pick: ["user", "token"],
 	},
 });

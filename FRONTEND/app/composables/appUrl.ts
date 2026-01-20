@@ -8,6 +8,7 @@ export const AppUrl = {
 
 	// Tout le reste a besoin d'authentification
 	DASHBOARD: "/dashboard",
+	HISTORICAL: "/mon-historique",
 
 
 	MISSIONS_LIST: "gestion-des-missions",
