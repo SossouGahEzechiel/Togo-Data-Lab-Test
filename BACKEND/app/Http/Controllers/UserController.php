@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use App\Enums\UserRoleEnum;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Notifications\NewUserCredentialsNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use OpenApi\Attributes as OA;
@@ -194,7 +196,26 @@ class UserController extends Controller
 			}
 		}
 
-		// TODO: Envoyer le mot de passe par email
+		try {
+			$user->notify(new NewUserCredentialsNotification(
+				email: $user->email,
+				password: $password,
+				firstName: $user->first_name,
+				lastName: $user->last_name
+			));
+
+			Log::info('Identifiants envoyés par email', [
+				'user_id' => $user->id,
+				'email' => $user->email,
+				'sent_at' => now()->toDateTimeString()
+			]);
+		} catch (\Throwable $th) {
+			Log::error('Échec d\'envoi d\'email des identifiants', [
+				'user_id' => $user->id,
+				'error' => $th->getMessage()
+			]);
+			// On continue même si l'email échoue, on ne bloque pas la création
+		}
 
 		return UserResource::make($user->load('image'));
 	}
@@ -556,38 +577,4 @@ class UserController extends Controller
 			'password_sent_to' => $user->email
 		]);
 	}
-
-	// public function updateImage(Request $request): ImageResource|JsonResponse
-	// {
-	// 	dd($request->hasFile('image'));
-	// 	$request->validate([
-	// 		'image' => ['required', 'file', 'mimes:jpeg,jpg,png,webp'],
-	// 	]);
-
-	// 	$user = $request->user();
-
-	// 	if ($request->hasFile('image')) {
-	// 		$oldPath = $user->image->path;
-	// 		$path = '';
-	// 		try {
-	// 			DB::beginTransaction();
-	// 			$path = store_file($request, 'image', static::IMAGE_FOLDER);
-	// 			$user->image->update(['path' => $path]);
-	// 			DB::commit();
-	// 			delete_file($oldPath);
-	// 		} catch (Throwable $th) {
-	// 			DB::rollBack();
-	// 			delete_file($path);
-	// 			return _500($th->getMessage());
-	// 		}
-	// 	} else {
-	// 		if ($user->image) {
-	// 			delete_file($user->image->path ?? '');
-	// 			$user->image->delete();
-	// 		}
-	// 	}
-
-	// 	// TODO: Implémenter la logique de mise à jour de l'image
-	// 	return _500();
-	// }
 }
