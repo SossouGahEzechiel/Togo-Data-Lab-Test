@@ -21,8 +21,8 @@ Route::controller(AuthController::class)->prefix('auth')->group(function () {
 
 // Route::post('users/{user}', [UserController::class, 'updateImage']);
 
-Route::middleware(['auth:sanctum'])->group(function () {
-	Route::controller(VehicleController::class)->prefix('vehicles')->group(function() {
+Route::middleware(['auth:sanctum', 'password.configured'])->group(function () {
+	Route::controller(VehicleController::class)->prefix('vehicles')->group(function () {
 		Route::get('available', 'availableVehicles');
 		// Du POST parce que le GET ne permet pas de passer des paramètres
 		Route::post('{vehicle}/check-availability', 'checkAvailability');

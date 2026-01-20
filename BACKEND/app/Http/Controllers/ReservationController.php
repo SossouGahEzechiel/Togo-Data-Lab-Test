@@ -285,12 +285,17 @@ class ReservationController extends Controller
 			'driverId' => "Le chauffeur",
 		]);
 
+		$vehicle = Vehicle::query()->find($request->input('vehicleId'));
+		if (!$vehicle->isAvailable($request->input('from'), $request->input('to'))) {
+			return _403("Le véhicule n'est pas disponible");
+		}
+
 		$reservation = Reservation::query()->create([
 			...$request->only(['from', 'to']),
 			'mission_id' => $request->input('missionId'),
 			'vehicle_id' => $request->input('vehicleId'),
 			'driver_id' => $request->input('driverId'),
-			'user_id' => auth()->id(),
+			'user_id' => $request->user()->id,
 			'status' => ReservationStatusEnum::PENDING
 		]);
 		return new ReservationResource($reservation);
