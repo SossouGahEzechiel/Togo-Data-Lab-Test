@@ -30,7 +30,6 @@ export default defineNuxtConfig({
 
 	runtimeConfig: {
 		public: {
-			encryptionSecret: process.env.VITE_NUXT_PUBLIC_ENCRYPTION_SECRET,
 		},
 	},
 	ssr: false,
