@@ -11,10 +11,14 @@ export const useReservationStore = defineStore("ReservationStore", {
 	}),
 
 	actions: {
-		async findAll() {
+		async findAll(userId?: string) {
 			this.isLoading = true;
 			try {
-				const { data } = await useApi().get<Reservation[]>(ApiUrl.RESERVATIONS);
+				let url = ApiUrl.queryable(ApiUrl.RESERVATIONS, {});
+				if (userId) {
+					url = ApiUrl.queryable(ApiUrl.RESERVATIONS, { userId });
+				}
+				const { data } = await useApi().get<Reservation[]>(url);
 				this.reservations = data;
 				this.errors = {};
 			} catch (error) {
@@ -88,7 +92,9 @@ export const useReservationStore = defineStore("ReservationStore", {
 					ApiUrl.parameterized(ApiUrl.RESERVATION_DECISION, id),
 					{ status },
 				);
-				this.reservations = this.reservations.map(_ => _.id === id ? data : _);
+				this.reservations = this.reservations.map((_) =>
+					_.id === id ? data : _,
+				);
 				this.errors = {};
 			} catch (error) {
 				this.errors = useValidationErrors(error);

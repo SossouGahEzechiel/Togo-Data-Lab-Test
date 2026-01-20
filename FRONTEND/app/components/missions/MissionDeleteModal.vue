@@ -41,7 +41,7 @@
 
 <script setup lang="ts">
 import { ExclamationTriangleIcon } from '@heroicons/vue/24/outline';
-import Spinner from '../partials/spinner.vue';
+import Spinner from '../partials/Spinner.vue';
 
 defineProps<{
 	showDeleteModal: boolean;

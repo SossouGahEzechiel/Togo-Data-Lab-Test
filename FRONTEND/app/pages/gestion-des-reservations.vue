@@ -5,19 +5,11 @@
 			<div class="flex items-center justify-between">
 				<div>
 					<h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
-						Gestion des réservations
+						<!-- Gestion des réservations -->
+						{{ filteredReservations.length }} réservation(s) trouvée(s)
 					</h1>
-					<p class="text-gray-600 dark:text-gray-400 mt-1">
-						Gestion et suivi des réservations de véhicules
-					</p>
 				</div>
 			</div>
-			<div class="mt-4 flex items-center justify-between">
-				<div class="text-sm text-gray-500 dark:text-gray-400">
-					{{ filteredReservations.length }} réservation(s) trouvée(s)
-				</div>
-			</div>
-			<div class="mt-4 border-b border-gray-200 dark:border-dark-600"></div>
 		</div>
 
 		<!-- Filtres et recherche -->
@@ -377,7 +369,6 @@
 <script setup lang="ts">
 import {
 	MagnifyingGlassIcon,
-	PlusIcon,
 	CalendarIcon,
 	ClockIcon,
 	CheckCircleIcon,
@@ -387,7 +378,7 @@ import {
 	ChevronRightIcon,
 	XMarkIcon
 } from '@heroicons/vue/24/outline'
-
+useHead({title: "Gestion des réservations"})
 import { usePageTitle } from '~/composables/usePageTitle'
 import { useReservationStore } from '~/stores/ReservationStore'
 import type { Reservation } from '~/types/Reservation'

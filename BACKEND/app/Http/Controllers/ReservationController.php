@@ -150,7 +150,7 @@ class ReservationController extends Controller
 
 			$query->where('user_id', $requestedUserId);
 		} else {
-			if ($user->role !== UserRoleEnum::ADMIN) {
+			if ($user->role !== UserRoleEnum::ADMIN->value) {
 				$query->where('user_id', $user->id);
 			}
 		}
