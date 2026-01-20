@@ -501,8 +501,7 @@ import {
 	PlusCircleIcon,
 	ArchiveBoxIcon,
 	CheckIcon,
-	XCircleIcon,
-	ChartBarIcon
+	XCircleIcon
 } from '@heroicons/vue/24/outline'
 import { useReservationStore } from '~/stores/ReservationStore'
 import { useVehicleStore } from '~/stores/VehicleStore'
@@ -732,7 +731,13 @@ const loadData = async () => {
 
 // Lifecycle
 onMounted(() => {
-	setPageTitle('Tableau de bord', 'Vue d\'ensemble de votre activité')
-	loadData()
+	console.log("authStore.isAdmin:", authStore.isAdmin);
+	
+	if(authStore.isAdmin){
+		setPageTitle('Tableau de bord', 'Vue d\'ensemble de votre activité')
+		loadData()
+	} else {
+		return navigateTo(AppUrl.RESERVATION_CREATE);
+	}
 })
 </script>

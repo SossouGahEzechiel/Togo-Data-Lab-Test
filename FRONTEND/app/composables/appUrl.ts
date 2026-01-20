@@ -10,7 +10,6 @@ export const AppUrl = {
 	DASHBOARD: "/dashboard",
 	HISTORICAL: "/mon-historique",
 
-
 	MISSIONS_LIST: "gestion-des-missions",
 	MISSION_DETAILS: "details-d-une-mission/:id",
 

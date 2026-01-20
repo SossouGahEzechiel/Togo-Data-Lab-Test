@@ -110,8 +110,8 @@
 							</ul>
 						</div>
 
-						<p v-if="validationErrors.password" class="text-red-500 text-xs mt-1">
-							{{ validationErrors.password }}
+						<p v-if="errors.password" class="text-red-500 text-xs mt-1">
+							{{ errors.password }}
 						</p>
 					</div>
 
@@ -150,8 +150,8 @@
 							</span>
 						</div>
 
-						<p v-if="validationErrors.password_confirmation" class="text-red-500 text-xs mt-1">
-							{{ validationErrors.password_confirmation }}
+						<p v-if="errors.password_confirmation" class="text-red-500 text-xs mt-1">
+							{{ errors.password_confirmation }}
 						</p>
 					</div>
 
@@ -202,7 +202,7 @@ const showpassword = ref(false);
 const showPassword_confirmation = ref(false);
 
 const authStore = useAuthStore();
-const { validationErrors } = storeToRefs(authStore);
+const { errors } = storeToRefs(authStore);
 
 const passwordStrength = ref<'weak' | 'medium' | 'strong'>('weak');
 const passwordsMatch = ref(false);
@@ -238,17 +238,17 @@ const validatePassword = () => {
 	checkPasswordMatch();
 
 	if (password && password.length < 8) {
-		validationErrors.value.password = 'Le mot de passe doit contenir au moins 8 caractères';
+		errors.value.password = 'Le mot de passe doit contenir au moins 8 caractères';
 	} else if (password && !passwordRequirements.hasUpperCase) {
-		validationErrors.value.password = 'Le mot de passe doit contenir au moins une majuscule';
+		errors.value.password = 'Le mot de passe doit contenir au moins une majuscule';
 	} else if (password && !passwordRequirements.hasLowerCase) {
-		validationErrors.value.password = 'Le mot de passe doit contenir au moins une minuscule';
+		errors.value.password = 'Le mot de passe doit contenir au moins une minuscule';
 	} else if (password && !passwordRequirements.hasNumber) {
-		validationErrors.value.password = 'Le mot de passe doit contenir au moins un chiffre';
+		errors.value.password = 'Le mot de passe doit contenir au moins un chiffre';
 	} else if (password && !passwordRequirements.hasSpecialChar) {
-		validationErrors.value.password = 'Le mot de passe doit contenir au moins un caractère spécial';
+		errors.value.password = 'Le mot de passe doit contenir au moins un caractère spécial';
 	} else {
-		validationErrors.value.password = '';
+		errors.value.password = '';
 	}
 };
 
@@ -257,13 +257,13 @@ const checkPasswordMatch = () => {
 		passwordsMatch.value = passwordData.password === passwordData.password_confirmation;
 
 		if (!passwordsMatch.value) {
-			validationErrors.value.password_confirmation = 'Les mots de passe ne correspondent pas';
+			errors.value.password_confirmation = 'Les mots de passe ne correspondent pas';
 		} else {
-			validationErrors.value.password_confirmation = '';
+			errors.value.password_confirmation = '';
 		}
 	} else {
 		passwordsMatch.value = false;
-		validationErrors.value.password_confirmation = '';
+		errors.value.password_confirmation = '';
 	}
 };
 
@@ -273,26 +273,26 @@ const isFormValid = computed(() => {
 		passwordData.password_confirmation.length >= 8 &&
 		passwordsMatch.value &&
 		passwordStrength.value !== 'weak' &&
-		!validationErrors.value.password &&
-		!validationErrors.value.password_confirmation
+		!errors.value.password &&
+		!errors.value.password_confirmation
 	);
 });
 
 const handlePasswordSetup = async () => {
 	if (!isFormValid.value) {
-		validationErrors.value._general = 'Veuillez corriger les erreurs avant de soumettre';
+		errors.value._general = 'Veuillez corriger les erreurs avant de soumettre';
 		return;
 	}
 
 	isLoading.value = true;
-	validationErrors.value._general = '';
+	errors.value._general = '';
 
 	try {
 		await authStore.configurePassword(passwordData);
 		navigateTo(AppUrl.DASHBOARD);
 	} catch (error: any) {
 		console.error("Erreur lors de la configuration du mot de passe:", error);
-		validationErrors.value._general = error.message || 'Une erreur est survenue lors de la configuration';
+		errors.value._general = error.message || 'Une erreur est survenue lors de la configuration';
 	} finally {
 		isLoading.value = false;
 	}

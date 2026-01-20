@@ -1,8 +1,7 @@
 <template>
 	<nav class="flex flex-col space-y-1">
-		<template v-for="item in sidebarMenu" :key="item.id">
+		<template v-for="item in filteredMenu" :key="item.id">
 			<NuxtLink :to="item.url" :title="collapsed ? item.name : ''"
-				v-if="item.isForAdmin ? user?.role === UserRoleEnum.ADMIN : true"
 				class="group flex items-center rounded-lg px-3 py-3 text-sm font-medium transition-colors duration-200"
 				active-class="bg-primary-500 text-white shadow-sm"
 				inactive-class="text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-700">
@@ -38,7 +37,7 @@ import {
 	DocumentTextIcon,
 	Cog6ToothIcon,
 	BuildingOfficeIcon,
-	CalendarDaysIcon
+	CalendarDaysIcon,
 } from '@heroicons/vue/24/outline'
 import { UserRoleEnum } from '~/types/UserRoleEnum';
 
@@ -49,7 +48,16 @@ interface Props {
 }
 
 defineProps<Props>();
-const { user } = useAuthStore();
+const { user, isAdmin } = useAuthStore();
+
+const filteredMenu = computed(() => {
+  return sidebarMenu.filter(item => {
+    if (item.isForAdmin) {
+      return isAdmin;
+    }
+    return true;
+  });
+});
 
 // Map des icônes
 const iconComponents = {

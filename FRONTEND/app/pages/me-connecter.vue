@@ -27,8 +27,8 @@
 							<input id="email" v-model="credentials.email" type="email" placeholder="Email"
 								class="input-field pl-10 pr-4 py-3" autocomplete="email" required />
 						</div>
-						<p v-if="validationErrors.email || validationErrors._general" class="text-red-500 text-sm mt-1">
-							{{ validationErrors.email || validationErrors._general }}
+						<p v-if="errors.email || errors._general" class="text-red-500 text-sm mt-1">
+							{{ errors.email || errors._general }}
 						</p>
 					</div>
 
@@ -41,11 +41,11 @@
 							</span>
 							<input id="password" v-model="credentials.password" type="password" placeholder="Mot de passe" :class="[
 								'input-field pl-10 pr-4 py-3',
-								validationErrors.password ? 'border-red-500' : '',
+								errors.password ? 'border-red-500' : '',
 							]" autocomplete="current-password" required />
 						</div>
-						<p v-if="validationErrors.password" class="text-red-500 text-sm mt-1">
-							{{ validationErrors.password }}
+						<p v-if="errors.password" class="text-red-500 text-sm mt-1">
+							{{ errors.password }}
 						</p>
 					</div>
 
@@ -80,13 +80,13 @@ import { TruckIcon } from '@heroicons/vue/24/outline';
 import Spinner from '~/components/partials/Spinner.vue';
 import { initLoginCredential, type LoginCredential } from '~/types/User';
 
-definePageMeta({ layout: false, ssr: false });
+definePageMeta({ layout: false, middleware: [] });
 useHead({ title: "Connexion" });
 
 const authStore = useAuthStore();
 const isLoading = ref<boolean>(false);
 const credentials = ref<LoginCredential>(initLoginCredential());
-const { validationErrors } = storeToRefs(authStore);
+const { errors } = storeToRefs(authStore);
 
 const handleLogin = async () => {
 	isLoading.value = true;

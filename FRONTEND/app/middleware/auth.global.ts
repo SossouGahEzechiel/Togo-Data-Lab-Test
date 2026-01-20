@@ -1,46 +1,74 @@
 import { defineNuxtRouteMiddleware, navigateTo } from "nuxt/app";
-import { AppUrl } from "@/composables/appUrl";
-import { useAuthStore } from "../stores/AuthStore";
+import { AppUrl } from "~/composables/appUrl";
+import { useAuthStore } from "~/stores/AuthStore";
+import { sidebarMenu } from "~/utils/sidebarConfig";
+import { UserRoleEnum } from "~/types/UserRoleEnum";
 
-export default defineNuxtRouteMiddleware((to) => {
-  const auth = useAuthStore();
+export default defineNuxtRouteMiddleware((to, from) => {
+	// Éviter les boucles
+	if (to.path === from.path) {
+		return;
+	}
 
-  const publicRoutes = [
-    AppUrl.HOME,
-    AppUrl.LOGIN,
-    AppUrl.REGISTER,
-    AppUrl.FORGOT_PASSWORD,
-    // NE PAS mettre CONFIRM ici si tu veux qu’elle soit protégée
-  ];
+	const auth = useAuthStore();
 
-  // Normaliser le path (optionnel si tu as parfois un trailing slash)
-  const basePath = to.path.replace(/\/+$/, '') || '/';
+	const publicRoutes = [AppUrl.HOME, AppUrl.LOGIN];
+	const basePath = to.path.replace(/\/+$/, "") || "/";
 
-  const isAuthenticated = auth.isAuthenticated;
-  const hasConfirmedPassword = !!auth.user?.hasConfiguredPassword;
+	const isAuthenticated = auth.isAuthenticated;
+	const hasConfirmedPassword = !!auth.user?.hasConfiguredPassword;
+	const isAdmin = auth.user?.role === UserRoleEnum.ADMIN;
 
-  // 1) Utilisateur NON authentifié : ne PAS vérifier hasConfirmedPassword
-  if (!isAuthenticated) {
-    if (publicRoutes.includes(basePath as any)) {
-      return; // laisser passer home/login/register/forgot
-    }
-    return navigateTo(AppUrl.LOGIN);
-  }
+	// Route par défaut selon le rôle
+	const getDefaultRoute = () => {
+		return isAdmin ? AppUrl.DASHBOARD : AppUrl.RESERVATION_CREATE;
+	};
 
-  // 2) Utilisateur authentifié : exiger la confirmation si nécessaire
-  if (!hasConfirmedPassword && basePath !== AppUrl.CONFIRM_MY_PASSWORD) {
-    return navigateTo(AppUrl.CONFIRM_MY_PASSWORD);
-  }
+	// 1) Routes publiques
+	if (publicRoutes.includes(basePath as any)) {
+		if (isAuthenticated) {
+			const destination = hasConfirmedPassword
+				? getDefaultRoute()
+				: AppUrl.CONFIRM_MY_PASSWORD;
 
-  // Si déjà confirmé et essaie d'aller sur /confirm, renvoyer vers dashboard
-  if (hasConfirmedPassword && basePath === AppUrl.CONFIRM_MY_PASSWORD) {
-    return navigateTo(AppUrl.DASHBOARD);
-  }
+			if (basePath !== destination) {
+				return navigateTo(destination, { replace: true });
+			}
+		}
+		return;
+	}
 
-  // 3) Utilisateur authentifié sur une route "publique" (ex: /login) → rediriger
-  if (publicRoutes.includes(basePath as any)) {
-    return navigateTo(hasConfirmedPassword ? AppUrl.DASHBOARD : AppUrl.CONFIRM_MY_PASSWORD);
-  }
+	// 2) Page de confirmation
+	if (basePath === AppUrl.CONFIRM_MY_PASSWORD) {
+		if (!isAuthenticated) {
+			return navigateTo(AppUrl.LOGIN, { replace: true });
+		}
+		if (hasConfirmedPassword) {
+			return navigateTo(getDefaultRoute(), { replace: true });
+		}
+		return;
+	}
 
-  // sinon laisser passer
+	// 3) Authentification requise
+	if (!isAuthenticated) {
+		return navigateTo(AppUrl.LOGIN, { replace: true });
+	}
+
+	// 4) Mot de passe non configuré
+	if (!hasConfirmedPassword) {
+		return navigateTo(AppUrl.CONFIRM_MY_PASSWORD, { replace: true });
+	}
+
+	// 5) Vérification des permissions admin
+	const currentMenuItem = sidebarMenu.find((item) => item.url === basePath);
+
+	if (currentMenuItem?.isForAdmin && !isAdmin) {
+		const destination = AppUrl.RESERVATION_CREATE;
+
+		if (basePath !== destination) {
+			return navigateTo(destination, { replace: true });
+		}
+	}
+
+	// Tout est ok
 });

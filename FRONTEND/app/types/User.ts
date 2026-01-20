@@ -1,5 +1,5 @@
 import type { Image } from "./Image";
-import type { UserRoleEnum } from "./UserRoleEnum";
+import { UserRoleEnum } from "./UserRoleEnum";
 
 export interface User {
 	id: string;
@@ -34,3 +34,7 @@ export const initPasswordConfiguration = (): ConfigurePasswordCredential => ({
 	password: "",
 	password_confirmation: "",
 });
+
+export const isAdmin = (user: User | null): boolean => {
+	return user?.role === UserRoleEnum.ADMIN;
+};

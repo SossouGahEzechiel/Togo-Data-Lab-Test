@@ -1,25 +1,26 @@
 import { defineStore } from "pinia";
-import type {
-	ConfigurePasswordCredential,
-	LoginCredential,
-	User,
+import {
+	isAdmin,
+	type ConfigurePasswordCredential,
+	type LoginCredential,
+	type User,
 } from "~/types/User";
 
 export const useAuthStore = defineStore("AuthStore", {
 	state: () => ({
 		user: null as User | null,
 		token: null as string | null,
-		validationErrors: {} as ValidationErrors,
-		newPasswordErrors: {} as ValidationErrors,
-		resetValidationErrors: {} as ValidationErrors,
+		errors: {} as ValidationErrors,
 	}),
 	getters: {
 		isAuthenticated: (state) => {
 			return !!(state.user && state.token);
 		},
+
 		fullName: (state) => {
 			return `${state.user?.firstName} ${state.user?.lastName}`;
 		},
+
 		userInitials: (state) => {
 			if (!state.user) {
 				return "";
@@ -34,6 +35,14 @@ export const useAuthStore = defineStore("AuthStore", {
 
 			return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
 		},
+
+		isAdmin: (state) => {
+			return isAdmin(state.user);
+		},
+
+		userRole: (state) => {
+			return state.user?.role || null;
+		},
 	},
 	actions: {
 		async login(credentials: LoginCredential) {
@@ -43,8 +52,8 @@ export const useAuthStore = defineStore("AuthStore", {
 				this.user = data;
 				this.token = data.token;
 			} catch (error) {
-				this.validationErrors = useValidationErrors(error);
-				console.log("General error:", this.validationErrors._general);
+				this.errors = useValidationErrors(error);
+				console.log("General error:", this.errors._general);
 				throw error;
 			}
 		},
@@ -55,6 +64,7 @@ export const useAuthStore = defineStore("AuthStore", {
 				console.log("Logout error:", error);
 			} finally {
 				this.cleanStorage();
+				this.cleanOtherStorages();
 				navigateTo(AppUrl.LOGIN);
 			}
 		},
@@ -65,13 +75,14 @@ export const useAuthStore = defineStore("AuthStore", {
 				});
 				this.user = data;
 			} catch (error: any) {
-				this.resetValidationErrors = useValidationErrors(error);
+				this.errors = useValidationErrors(error);
 				throw error;
 			}
 		},
 		cleanStorage() {
 			this.user = null;
 			this.token = null;
+			this.errors = {};
 		},
 
 		cleanOtherStorages() {
@@ -79,7 +90,7 @@ export const useAuthStore = defineStore("AuthStore", {
 			useReservationStore().cleanStorage();
 			useUserStore().cleanStorage();
 			useVehicleStore().cleanStorage();
-		}
+		},
 	},
 	persist: {
 		storage: secureLsStorage,

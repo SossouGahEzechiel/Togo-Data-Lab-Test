@@ -71,6 +71,10 @@ class AuthController extends Controller
 			return _400("Les identifiants de connexion que vous avez fournis sont invalides");
 		}
 
+		if (!$user->is_active) {
+			return _403("Votre compte n'est pas actif");
+		}
+
 		return new UserResource($this->generateToken($user));
 	}
 
