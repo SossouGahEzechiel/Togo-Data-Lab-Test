@@ -197,24 +197,23 @@ class UserController extends Controller
 		}
 
 		try {
+
+			Log::info('Identifiants envoyés par email', [
+				'user_id' => $user->id,
+				'email' => $user->email
+			]);
+
 			$user->notify(new NewUserCredentialsNotification(
 				email: $user->email,
 				password: $password,
 				firstName: $user->first_name,
 				lastName: $user->last_name
 			));
-
-			Log::info('Identifiants envoyés par email', [
-				'user_id' => $user->id,
-				'email' => $user->email,
-				'sent_at' => now()->toDateTimeString()
-			]);
 		} catch (\Throwable $th) {
 			Log::error('Échec d\'envoi d\'email des identifiants', [
 				'user_id' => $user->id,
 				'error' => $th->getMessage()
 			]);
-			// On continue même si l'email échoue, on ne bloque pas la création
 		}
 
 		return UserResource::make($user->load('image'));

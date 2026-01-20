@@ -55,7 +55,6 @@ Toutes les fonctionnalités ne sont accessibles qu'aux administrateurs. Si ce n'
 ### 3. Gestion des Missions
 - Création – modification – suppression  
 - Statuts : en attente | en cours | terminée | annulée  
-- **Mise à jour automatique** du statut « terminée » via tâche planifiée
 
 ### 4. Gestion des Réservations
 - Création : choix véhicule + mission + dates début/fin  
