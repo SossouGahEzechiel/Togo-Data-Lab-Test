@@ -52,19 +52,16 @@ cp .env.example .env
 # Générer la clé d'application Laravel
 php artisan key:generate
 
-# (Optionnel) Vérifier / ajuster la configuration SQLite dans .env
+# (Optionnel) Vérifiez / ajuster la configuration SQLite dans .env
 # Les valeurs par défaut devraient suffire :
 # DB_CONNECTION=sqlite
 # DB_DATABASE=database/database.sqlite
 
-# Créer le fichier SQLite s'il n'existe pas + migrations
+# Créez le fichier SQLite s'il n'existe pas + migrations
 php artisan migrate
 
 # Charger les données de test (utilisateurs, véhicules, missions, réservations)
 php artisan db:seed
-
-# (Optionnel mais fortement recommandé pour voir les mots de passe temporaires)
-# Regardez dans : storage/logs/laravel.log après le seed
 ```
 
 ### 3. Installer le frontend (Next.js)
@@ -95,7 +92,7 @@ Terminal 2 – Frontend (Next.js)
 # Depuis le dossier frontend/
 yarn dev
 # ou
-# npm run dev
+npm run dev
 
 # → Interface disponible sur http://localhost:3000
 ```
