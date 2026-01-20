@@ -26,8 +26,11 @@
 								<ReservationStatusBadge :status="reservation.status" />
 							</div>
 							<div class="mt-1">
+								<p class="text-xs text-gray-500 dark:text-gray-400" v-if="isManageMode">
+									Demandé par: {{ reservation.user?.fullName || 'N/A' }}
+								</p>
 								<p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-									{{ reservation.vehicle ?
+									Véhicule: {{ reservation.vehicle ?
 										`${reservation.vehicle.brand} ${reservation.vehicle.model}` :
 										'Véhicule non assigné' }}
 								</p>
