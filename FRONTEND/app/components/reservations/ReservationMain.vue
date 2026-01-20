@@ -40,9 +40,8 @@
 			</div>
 
 			<!-- Pagination -->
-			<ReservationPagination :filteredReservations="filteredReservations" :endIndex="endIndex"
-				:pagesToShow="pagesToShow" v-model:currentPage="currentPage" v-model:totalPages="totalPages"
-				v-model:startIndex="startIndex" />
+			<Paginator :filtered-data-count="filteredReservations.length" :endIndex="endIndex" :pagesToShow="pagesToShow"
+				v-model:currentPage="currentPage" v-model:totalPages="totalPages" v-model:startIndex="startIndex" />
 		</div>
 
 		<!-- Modal de confirmation de suppression -->
@@ -70,9 +69,9 @@ import { ref, computed, watch } from 'vue'
 import { ReservationStatusEnum, reservationStatuses } from '~/types/ReservationEnum'
 import ReservationListView from '~/components/reservations/ReservationListView.vue'
 import ReservationCardView from '~/components/reservations/ReservationCardView.vue'
-import ReservationPagination from '~/components/reservations/ReservationPagination.vue'
 import ReservationFilters from '~/components/reservations/ReservationFilters.vue'
 import ReservationStats from './ReservationStats.vue'
+import Paginator from '../partials/Paginator.vue'
 
 const props = defineProps<{
 	isManageMode: boolean
@@ -99,7 +98,7 @@ const reservationToValidate = ref<Reservation | null>(null)
 const reservationToReject = ref<Reservation | null>(null)
 
 // Computed properties
-const reservations = computed(() => reservationStore.reservations)
+const { reservations } = storeToRefs(reservationStore)
 
 const filteredReservations = computed(() => {
 	console.log("reservations.value:", reservations.value);
@@ -268,6 +267,9 @@ const clearFilters = () => {
 }
 
 const loadReservations = async () => {
+	if (!props.isManageMode) {
+		reservations.value = [];
+	}
 	try {
 		await reservationStore.findAll(props.isManageMode ? undefined : useAuthStore().user?.id);
 	} catch (error) {
@@ -280,7 +282,7 @@ watch([searchQuery, statusFilter, vehicleFilter], () => {
 	currentPage.value = 1
 });
 
-onMounted(()=>{
+onMounted(() => {
 	loadReservations();
 });
 </script>

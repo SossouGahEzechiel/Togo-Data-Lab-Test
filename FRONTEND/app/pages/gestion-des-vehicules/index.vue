@@ -3,10 +3,8 @@
 		<!-- Header avec titre et bouton -->
 		<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 			<div>
-				<h1 class="text-2xl font-bold text-gray-900 dark:text-white">Gestion des véhicules</h1>
-				<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-					{{ filteredVehicles.length }} véhicule(s) trouvé(s)
-				</p>
+				<h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ filteredVehicles.length }} véhicule(s) trouvé(s)
+				</h1>
 			</div>
 			<button @click="openCreateModal" class="btn-primary inline-flex items-center gap-x-2">
 				<PlusCircleIcon class="w-5 h-5" />
@@ -107,11 +105,11 @@
 			<div class="card">
 				<div class="flex items-center">
 					<div class="flex-shrink-0">
-						<XCircleIcon class="w-8 h-8 text-red-500" />
+						<LockClosedIcon class="w-8 h-8 text-sky-500" />
 					</div>
 					<div class="ml-4">
-						<p class="text-sm font-medium text-gray-500 dark:text-gray-400">Indisponibles</p>
-						<p class="text-2xl font-bold text-gray-900 dark:text-white">{{ unavailableCount }}</p>
+						<p class="text-sm font-medium text-gray-500 dark:text-gray-400">Réservés</p>
+						<p class="text-2xl font-bold text-gray-900 dark:text-white">{{ reservedCount }}</p>
 					</div>
 				</div>
 			</div>
@@ -256,49 +254,8 @@
 			</div>
 
 			<!-- Pagination -->
-			<div v-if="filteredVehicles.length > 0"
-				class="flex items-center justify-between border-t border-gray-200 dark:border-dark-700 px-4 py-3 sm:px-6">
-				<div class="flex-1 flex justify-between sm:hidden">
-					<button @click="currentPage = Math.max(1, currentPage - 1)" :disabled="currentPage === 1"
-						class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 dark:border-dark-600 dark:bg-dark-800 dark:text-gray-300 dark:hover:bg-dark-700">
-						Précédent
-					</button>
-					<button @click="currentPage = Math.min(totalPages, currentPage + 1)" :disabled="currentPage === totalPages"
-						class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 dark:border-dark-600 dark:bg-dark-800 dark:text-gray-300 dark:hover:bg-dark-700">
-						Suivant
-					</button>
-				</div>
-				<div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-					<div>
-						<p class="text-sm text-gray-700 dark:text-gray-300">
-							Affichage de <span class="font-medium">{{ startIndex + 1 }}</span> à
-							<span class="font-medium">{{ Math.min(endIndex, filteredVehicles.length) }}</span> sur
-							<span class="font-medium">{{ filteredVehicles.length }}</span> résultats
-						</p>
-					</div>
-					<div>
-						<nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-							<button @click="currentPage = Math.max(1, currentPage - 1)" :disabled="currentPage === 1"
-								class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 dark:border-dark-600 dark:bg-dark-800 dark:text-gray-400 dark:hover:bg-dark-700 disabled:opacity-50">
-								<ChevronLeftIcon class="h-5 w-5" />
-							</button>
-							<button v-for="page in pagesToShow" :key="page" @click="currentPage = page" :class="[
-								'relative inline-flex items-center px-4 py-2 border text-sm font-medium',
-								currentPage === page
-									? 'z-10 bg-primary-50 border-primary-500 text-primary-600 dark:bg-primary-900 dark:border-primary-400 dark:text-primary-300'
-									: 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50 dark:bg-dark-800 dark:border-dark-600 dark:text-gray-400 dark:hover:bg-dark-700'
-							]">
-								{{ page }}
-							</button>
-							<button @click="currentPage = Math.min(totalPages, currentPage + 1)"
-								:disabled="currentPage === totalPages"
-								class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 dark:border-dark-600 dark:bg-dark-800 dark:text-gray-400 dark:hover:bg-dark-700 disabled:opacity-50">
-								<ChevronRightIcon class="h-5 w-5" />
-							</button>
-						</nav>
-					</div>
-				</div>
-			</div>
+			<Paginator :filtered-data-count="filteredVehicles.length" :endIndex="endIndex" :pagesToShow="pagesToShow"
+				v-model:currentPage="currentPage" v-model:totalPages="totalPages" v-model:startIndex="startIndex" />
 		</div>
 
 		<!-- Modals -->
@@ -324,7 +281,8 @@ import {
 	EyeIcon,
 	TrashIcon,
 	ChevronLeftIcon,
-	ChevronRightIcon
+	ChevronRightIcon,
+	LockClosedIcon
 } from '@heroicons/vue/24/outline'
 
 import { usePageTitle } from '~/composables/usePageTitle'
@@ -335,7 +293,8 @@ import VehicleStatusBadge from '~/components/vehicles/VehicleStatusBadge.vue'
 import VehicleDeleteModal from '~/components/vehicles/VehicleDeleteModal.vue'
 import { ref, computed, onMounted, watch } from 'vue'
 import { initVehicleForm, type Vehicle } from '~/types/Vehicle'
-import { vehicleStatuses, vehicleTypes } from '~/types/VehicleEnums'
+import { VehicleStatusEnum, vehicleStatuses, vehicleTypes } from '~/types/VehicleEnums'
+import Paginator from '~/components/partials/Paginator.vue'
 
 useHead({ title: "Gestion du parc auto-mobile" });
 const { setPageTitle } = usePageTitle();
@@ -371,13 +330,13 @@ const filteredVehicles = computed(() => {
 })
 
 const availableCount = computed(() =>
-	vehicles.value.filter(v => v.status === 'Disponible').length
+	vehicles.value.filter(v => v.status === VehicleStatusEnum.AVAILABLE).length
 )
 const underRepairCount = computed(() =>
-	vehicles.value.filter(v => v.status === 'En réparation').length
+	vehicles.value.filter(v => v.status === VehicleStatusEnum.UNDER_REPAIR).length
 )
-const unavailableCount = computed(() =>
-	vehicles.value.filter(v => v.status === 'Indisponible').length
+const reservedCount = computed(() =>
+	vehicles.value.filter(v => v.status === VehicleStatusEnum.RESERVED).length
 )
 
 const hasActiveFilters = computed(() =>

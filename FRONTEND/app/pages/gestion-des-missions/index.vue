@@ -2,10 +2,8 @@
 	<div class="space-y-6">
 		<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 			<div>
-				<h1 class="text-2xl font-bold text-gray-900 dark:text-white">Gestion des missions</h1>
-				<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-					{{ filteredMissions.length }} mission(s) trouvé(s)
-				</p>
+				<h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ filteredMissions.length }} mission(s) trouvé(s)
+				</h1>
 			</div>
 			<button @click="openCreateModal" class="btn-primary inline-flex items-center gap-x-2">
 				<PlusCircleIcon class="w-5 h-5" />
@@ -75,49 +73,8 @@
 			</div>
 
 			<!-- Pagination -->
-			<div v-if="filteredMissions.length > 0"
-				class="flex items-center justify-between border-t border-gray-200 dark:border-dark-700 px-4 py-3 sm:px-6">
-				<div class="flex-1 flex justify-between sm:hidden">
-					<button @click="currentPage = Math.max(1, currentPage - 1)" :disabled="currentPage === 1"
-						class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 dark:border-dark-600 dark:bg-dark-800 dark:text-gray-300 dark:hover:bg-dark-700">
-						Précédent
-					</button>
-					<button @click="currentPage = Math.min(totalPages, currentPage + 1)" :disabled="currentPage === totalPages"
-						class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 dark:border-dark-600 dark:bg-dark-800 dark:text-gray-300 dark:hover:bg-dark-700">
-						Suivant
-					</button>
-				</div>
-				<div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-					<div>
-						<p class="text-sm text-gray-700 dark:text-gray-300">
-							Affichage de <span class="font-medium">{{ startIndex + 1 }}</span> à
-							<span class="font-medium">{{ Math.min(endIndex, filteredMissions.length) }}</span> sur
-							<span class="font-medium">{{ filteredMissions.length }}</span> résultats
-						</p>
-					</div>
-					<div>
-						<nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-							<button @click="currentPage = Math.max(1, currentPage - 1)" :disabled="currentPage === 1"
-								class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 dark:border-dark-600 dark:bg-dark-800 dark:text-gray-400 dark:hover:bg-dark-700 disabled:opacity-50">
-								<ChevronLeftIcon class="h-5 w-5" />
-							</button>
-							<button v-for="page in pagesToShow" :key="page" @click="currentPage = page" :class="[
-								'relative inline-flex items-center px-4 py-2 border text-sm font-medium',
-								currentPage === page
-									? 'z-10 bg-primary-50 border-primary-500 text-primary-600 dark:bg-primary-900 dark:border-primary-400 dark:text-primary-300'
-									: 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50 dark:bg-dark-800 dark:border-dark-600 dark:text-gray-400 dark:hover:bg-dark-700'
-							]">
-								{{ page }}
-							</button>
-							<button @click="currentPage = Math.min(totalPages, currentPage + 1)"
-								:disabled="currentPage === totalPages"
-								class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 dark:border-dark-600 dark:bg-dark-800 dark:text-gray-400 dark:hover:bg-dark-700 disabled:opacity-50">
-								<ChevronRightIcon class="h-5 w-5" />
-							</button>
-						</nav>
-					</div>
-				</div>
-			</div>
+			<Paginator :filtered-data-count="filteredMissions.length" :endIndex="endIndex" :pagesToShow="pagesToShow"
+				v-model:currentPage="currentPage" v-model:totalPages="totalPages" v-model:startIndex="startIndex" />
 		</div>
 
 		<!-- Modal de création/édition -->
@@ -143,11 +100,12 @@ import MissionFormModal from '~/components/missions/MissionFormModal.vue';
 import type { Mission } from '~/types/Mission';
 import { useMissionStore } from '~/stores/MissionStore';
 import { usePageTitle } from '~/composables/usePageTitle';
-import Spinner from '~/components/partials/spinner.vue';
+import Spinner from '~/components/partials/Spinner.vue';
 import MissionDeleteModal from '~/components/missions/MissionDeleteModal.vue'
 import MissionStatGrid from '~/components/missions/MissionStatGrid.vue'
 import MissionListView from '../../components/missions/MissionListView.vue'
 import MissionCardView from '../../components/missions/MissionCardView.vue'
+import Paginator from '~/components/partials/Paginator.vue';
 
 useHead({ title: "Gestion des missions" });
 const { setPageTitle } = usePageTitle();

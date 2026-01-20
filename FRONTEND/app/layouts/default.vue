@@ -199,7 +199,7 @@
 				</div>
 				<div class="mt-4 text-center">
 					<p class="text-xs text-gray-400 dark:text-gray-500">
-						Version 1.0.0 • Ministère des Transports
+						Version 1.0.0 • Organisation gouvernementale Togolaise
 					</p>
 				</div>
 			</footer>

@@ -12,7 +12,9 @@ export const useReservationStore = defineStore("ReservationStore", {
 
 	actions: {
 		async findAll(userId?: string) {
-			this.isLoading = true;
+			if (this.reservations.length === 0) {
+				this.isLoading = true;
+			}
 			try {
 				let url = ApiUrl.queryable(ApiUrl.RESERVATIONS, {});
 				if (userId) {

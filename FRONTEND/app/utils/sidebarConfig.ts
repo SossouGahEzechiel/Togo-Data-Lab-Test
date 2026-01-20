@@ -17,13 +17,13 @@ export const sidebarMenu: MenuItem[] = [
 		url: AppUrl.DASHBOARD,
 		isForAdmin: true,
 	},
-	{
-		id: "availability",
-		name: "Consulter la disponibilité",
-		icon: "CalendarDaysIcon",
-		url: AppUrl.RESERVATION_AVAILABILITY,
-		isForAdmin: false,
-	},
+	// {
+	// 	id: "availability",
+	// 	name: "Consulter la disponibilité",
+	// 	icon: "CalendarDaysIcon",
+	// 	url: AppUrl.RESERVATION_AVAILABILITY,
+	// 	isForAdmin: false,
+	// },
 	{
 		id: "new-reservation",
 		name: "Faire une réservation",
@@ -47,7 +47,7 @@ export const sidebarMenu: MenuItem[] = [
 	},
 	{
 		id: "vehicles",
-		name: "Gestion du parc auto-mobile",
+		name: "Gestion du parc automobile",
 		icon: "TruckIcon",
 		url: AppUrl.VEHICLES_LISTE,
 		isForAdmin: true,

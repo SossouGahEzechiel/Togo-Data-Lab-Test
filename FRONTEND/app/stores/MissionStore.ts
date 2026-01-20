@@ -11,7 +11,9 @@ export const useMissionStore = defineStore("MissionStore", {
 
 	actions: {
 		async findAll() {
-			this.isLoading = true;
+			if (this.missions.length === 0) {
+				this.isLoading = true;
+			}
 			try {
 				const { data } = await useApi().get<Mission[]>(ApiUrl.MISSIONS);
 				this.missions = data;
@@ -41,10 +43,7 @@ export const useMissionStore = defineStore("MissionStore", {
 		async store(mission: Mission) {
 			this.isPersisting = true;
 			try {
-				const { data } = await useApi().post<Mission>(
-					ApiUrl.MISSIONS,
-					mission,
-				);
+				const { data } = await useApi().post<Mission>(ApiUrl.MISSIONS, mission);
 				this.missions.push(data);
 			} catch (error) {
 				this.errors = useValidationErrors(error);
